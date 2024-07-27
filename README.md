@@ -53,11 +53,11 @@ const { useSelectors, setDeep } = createStore(initialState);
 // Example of using selectors
 function ExampleComponent() {
   // Automatic type inference and path suggestion for all functions' input and output
-  // 'user.name' and 'settings.theme' are inferred as strings, and name and theme are also suggested
+  // 'user.name' and 'settings.theme' are inferred as strings, then name and theme will be suggested
   const { name, theme } = useSelectors('user.name', 'settings.theme');
 
   // Update state at any depth just by specifying the path
-  const onClick1 = () => setDeep('user.name', 'John');
+  const onClick1 = () => setDeep('user.name', 'Jane');
   // Also, you can have access to the current state and return a new one
   const onClick2 = () => setDeep('settings.theme', (prev) => prev === 'light' ? 'dark' : 'light');
 
