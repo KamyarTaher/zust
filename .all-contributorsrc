@@ -1,0 +1,28 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "KamyarTaher",
+      "name": "Kamyar Taher",
+      "avatar_url": "https://avatars.githubusercontent.com/u/61198701?v=4",
+      "profile": "https://github.com/KamyarTaher",
+      "contributions": [
+        "infra",
+        "test",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "zust",
+  "projectOwner": "KamyarTaher"
+}
