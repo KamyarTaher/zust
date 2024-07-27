@@ -1,6 +1,11 @@
 import { create, StateCreator } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import { persist, createJSONStorage, PersistOptions } from "zustand/middleware";
+import {
+  persist,
+  createJSONStorage,
+  PersistOptions,
+  StorageValue,
+} from "zustand/middleware";
 import {
   getNestedValue,
   setNestedValue,
@@ -9,7 +14,6 @@ import {
   stableHash,
   deepMerge,
 } from "./utils";
-import { createPersister } from "./persistConfig";
 import { loggingMiddleware } from "../middleware";
 import { devToolsPlugin } from "../plugins";
 import type {
@@ -92,24 +96,29 @@ export function createStore<T extends object>(
   }
 
   if (persistOption) {
-    const persistConfig: PersistOptions<Store<T>, unknown> = {
+    type PersistState = Store<T>;
+    type PersistedState = StorageValue<PersistState>;
+
+    const persistConfig: PersistOptions<PersistState, PersistedState> = {
       name: storageName,
       storage: createJSONStorage(() => localStorage),
     };
 
     if (typeof persistOption === "object") {
-      (persistConfig as any).partialize = (state: Store<T>) =>
+      persistConfig.partialize = (state: PersistState): PersistedState =>
         Object.fromEntries(
           Object.entries(persistOption)
             .filter(([_, v]) => v)
-            .map(([k]) => [k, state[k as keyof T]])
-        ) as Partial<T>;
+            .map(([k]) => [k, state[k as keyof PersistState]])
+        ) as PersistedState;
     } else if (typeof persistOption === "function") {
-      (persistConfig as any).partialize = persistOption;
+      persistConfig.partialize = persistOption as (
+        state: PersistState
+      ) => PersistedState;
     }
 
-    finalStoreCreator = persist(
-      finalStoreCreator as StateCreator<Store<T>, [], []>,
+    finalStoreCreator = persist<PersistState, [], [], PersistedState>(
+      finalStoreCreator as StateCreator<PersistState, [], []>,
       persistConfig
     );
   }
