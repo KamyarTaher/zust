@@ -1,11 +1,5 @@
-import { create, StateCreator } from "zustand";
+import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
-import {
-  persist,
-  createJSONStorage,
-  PersistOptions,
-  StorageValue,
-} from "zustand/middleware";
 import {
   getNestedValue,
   setNestedValue,
@@ -14,6 +8,7 @@ import {
   stableHash,
   deepMerge,
 } from "./utils";
+import { createPersister } from "./persistConfig";
 import { loggingMiddleware } from "../middleware";
 import { devToolsPlugin } from "../plugins";
 import type {
@@ -26,6 +21,14 @@ import type {
   SetStateAction,
 } from "../types";
 
+/**
+ * Creates a generic store with advanced features like nested state management,
+ * middleware support, computed values, plugins, and state persistence.
+ *
+ * @param initialState - The initial state of the store.
+ * @param options - Configuration options for the store.
+ * @returns The created store and utility functions.
+ */
 export function createStore<T extends object>(
   initialState: T,
   options: StoreOptions<T> = {}
@@ -39,13 +42,25 @@ export function createStore<T extends object>(
     prefix = "",
   } = options;
 
+  // Create a stable hash based on the structure and initial values of the state
   const stateHash = stableHash(initialState);
+  // Use the options object's hash as an additional identifier
   const optionsHash = stableHash(options);
+  // Combine hashes to create a unique but stable storage name
   const storageName = `store-${prefix}-${stateHash}-${optionsHash}`;
 
   const storeCreator = (set: any, get: any, api: any) => {
+    const history = { past: [] as T[], future: [] as T[] };
+    const listeners: ((state: T, prevState: T) => void)[] = [];
+
     const finalMiddleware = combineMiddlewares(middleware);
 
+    /**
+     * Sets a nested state value.
+     *
+     * @param path - Path to the nested value.
+     * @param action - The new value or a function to produce the new value.
+     */
     const setDeep = <P extends Path<T>>(
       path: P,
       action: SetStateAction<PathValue<T, P>>
@@ -57,10 +72,20 @@ export function createStore<T extends object>(
             ? (action as Function)(getNestedValue(state, path))
             : action;
         setNestedValue(newState, path, value);
-        return finalMiddleware((s) => s)(newState);
+
+        // Save state history for undo/redo functionality
+        history.past.push(JSON.parse(JSON.stringify(state)));
+        history.future = [];
+
+        const finalState = finalMiddleware((s) => s)(newState);
+
+        // Notify listeners about the state change
+        listeners.forEach((listener) => listener(finalState, state));
+        return finalState;
       });
     };
 
+    // Merge initial state with any persisted state
     const persistedState = api.getState();
     const mergedInitialState = deepMerge(initialState, persistedState);
 
@@ -71,9 +96,18 @@ export function createStore<T extends object>(
         const state = get();
         await action(state, setDeep);
       },
-      subscribe: (listener) => set(null, true, listener),
+      subscribe: (listener) => {
+        listeners.push(listener);
+        return () => {
+          const index = listeners.indexOf(listener);
+          if (index > -1) {
+            listeners.splice(index, 1);
+          }
+        };
+      },
     };
 
+    // Define computed values as properties on the store
     Object.entries(computedValues).forEach(([key, selector]) => {
       Object.defineProperty(store, key, {
         get: () => selector(get()),
@@ -81,9 +115,14 @@ export function createStore<T extends object>(
       });
     });
 
+    // Initialize plugins and add their middlewares
     plugins.forEach((plugin) => {
-      if (plugin.onInit) plugin.onInit(store);
-      if (plugin.middleware) middleware.push(plugin.middleware);
+      if (plugin.onInit) {
+        plugin.onInit(store);
+      }
+      if (plugin.middleware) {
+        middleware.push(plugin.middleware);
+      }
     });
 
     return store;
@@ -91,39 +130,28 @@ export function createStore<T extends object>(
 
   let finalStoreCreator: any = storeCreator;
 
+  // Add logging middleware if enabled
   if (logging) {
     finalStoreCreator = loggingMiddleware(finalStoreCreator);
   }
 
+  // Add persistence middleware if enabled
   if (persistOption) {
-    type PersistState = Store<T>;
-    type PersistedState = StorageValue<PersistState>;
-
-    const persistConfig: PersistOptions<PersistState, PersistedState> = {
-      name: storageName,
-      storage: createJSONStorage(() => localStorage),
-    };
-
-    if (typeof persistOption === "object") {
-      persistConfig.partialize = (state: PersistState): PersistedState =>
-        Object.fromEntries(
-          Object.entries(persistOption)
-            .filter(([_, v]) => v)
-            .map(([k]) => [k, state[k as keyof PersistState]])
-        ) as PersistedState;
-    } else if (typeof persistOption === "function") {
-      persistConfig.partialize = persistOption as (
-        state: PersistState
-      ) => PersistedState;
-    }
-
-    finalStoreCreator = persist<PersistState, [], [], PersistedState>(
-      finalStoreCreator as StateCreator<PersistState, [], []>,
-      persistConfig
+    finalStoreCreator = createPersister(
+      finalStoreCreator,
+      persistOption,
+      storageName
     );
   }
+
   const useStore = create<Store<T>>(finalStoreCreator);
 
+  /**
+   * Custom hook to use selected parts of the state.
+   *
+   * @param selectors - List of selectors in the format "path:alias".
+   * @returns The selected state values.
+   */
   function useSelectors<S extends SelectorConfig<T>[]>(...selectors: S) {
     return useStore(
       useShallow((state) => {
@@ -140,6 +168,7 @@ export function createStore<T extends object>(
     );
   }
 
+  // Initialize dev tools plugin
   devToolsPlugin(useStore, storageName, initialState);
 
   return {
