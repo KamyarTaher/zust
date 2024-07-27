@@ -21,6 +21,7 @@ export default {
     typescript({
       tsconfig: "tsconfig.json",
       clean: true,
+      useTsconfigDeclarationDir: true, // Ajoutez cette ligne
     }),
   ],
   external: ["zustand", "react"],

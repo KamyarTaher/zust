@@ -9,10 +9,10 @@
     "allowJs": true,
 
     // Bundler mode
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "verbatimModuleSyntax": true,
- 
+    "moduleResolution": "node", // Changez "bundler" en "node"
+    "allowImportingTsExtensions": false, // Changez true en false
+    "verbatimModuleSyntax": false, // Changez true en false
+    "emitDeclarationOnly": false, // Changez true en false
     // Best practices
     "strict": true,
     "skipLibCheck": true,
@@ -30,8 +30,7 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "emitDeclarationOnly": true,
-    "rootDir": "./src",
+     "rootDir": "./src",
     "outDir": "./dist"
   },
   "include": ["src/**/*.ts", "src/types/**/*.d.ts"],

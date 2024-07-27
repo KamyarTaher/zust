@@ -1,14 +1,20 @@
 {
   "name": "zust",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "A powerful state manager based on Zustand",
-  "module": "index.ts",
-  "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "bun build ./src/index.ts --outdir ./dist",

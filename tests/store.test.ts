@@ -12,7 +12,7 @@ describe("Zust Store", () => {
     const { getState, setDeep } = createStore({ counter: 0 });
 
     // Directly update the state
-    setDeep("counter", 5);
+    setDeep("counter", (prev) => prev + 5);
 
     // Wait for state to update
     await new Promise((resolve) => setTimeout(resolve, 0));
