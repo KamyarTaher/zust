@@ -1,15 +1,15 @@
 import { expect, test, describe } from "bun:test";
-import { createGenericStore, Middleware } from "../src/index";
+import { createStore, Middleware } from "../src/index";
 
 describe("Zust Store", () => {
   test("creates a store with initial state", () => {
     const initialState = { counter: 0 };
-    const { getState } = createGenericStore(initialState);
+    const { getState } = createStore(initialState);
     expect(getState().counter).toEqual(initialState.counter);
   });
 
   test("updates state correctly", async () => {
-    const { getState, setDeep } = createGenericStore({ counter: 0 });
+    const { getState, setDeep } = createStore({ counter: 0 });
 
     // Directly update the state
     setDeep("counter", 5);
@@ -22,7 +22,7 @@ describe("Zust Store", () => {
   });
 
   test("handles nested state updates", async () => {
-    const { getState, setDeep } = createGenericStore({
+    const { getState, setDeep } = createStore({
       user: { profile: { name: "John" } },
     });
 
@@ -44,7 +44,7 @@ describe("Zust Store", () => {
       };
 
     // Create store with middleware
-    const { getState, setDeep } = createGenericStore(
+    const { getState, setDeep } = createStore(
       { counter: 0 },
       { middleware: [doubleMiddleware] }
     );

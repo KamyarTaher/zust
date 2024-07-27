@@ -1,5 +1,5 @@
 import { expect, test, describe, beforeEach, afterEach } from "bun:test";
-import { createGenericStore } from "../src/index";
+import { createStore } from "../src/index";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { JSDOM } from "jsdom";
@@ -30,7 +30,7 @@ describe("Zust Integration", () => {
       settings: { theme: "light" as const },
     };
 
-    const { useSelectors } = createGenericStore(initialState);
+    const { useSelectors } = createStore(initialState);
 
     let result: any;
     function TestComponent() {
@@ -53,7 +53,7 @@ describe("Zust Integration", () => {
   });
 
   test("state updates trigger re-renders", async () => {
-    const { useSelectors, setDeep } = createGenericStore({ counter: 0 });
+    const { useSelectors, setDeep } = createStore({ counter: 0 });
 
     let renderCount = 0;
     function TestComponent() {
