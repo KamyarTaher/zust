@@ -164,7 +164,7 @@ const initialState = {
 };
 
 // Create a persist configuration to persist the entire 'user' branch, but only 'theme' for the settings. Entering a branch name will persist all paths within that branch.
-const persistConfig = createPersistConfig('user', 'settings.theme');
+const persistConfig = createPersistConfig<typeof initialState>('user', 'settings.theme');
 
 // Create the store with persistence
 const { useSelectors, setDeep } = createPersister(
