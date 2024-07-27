@@ -1,4 +1,7 @@
 # Zust State Management
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing application state.
 
@@ -231,3 +234,25 @@ Feel free to contribute by submitting issues or pull requests.
 ## License
 
 MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/KamyarTaher"><img src="https://avatars.githubusercontent.com/u/61198701?v=4?s=100" width="100px;" alt="Kamyar Taher"/><br /><sub><b>Kamyar Taher</b></sub></a><br /><a href="#infra-KamyarTaher" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="https://github.com/KamyarTaher/zust/commits?author=KamyarTaher" title="Tests">⚠️</a> <a href="https://github.com/KamyarTaher/zust/commits?author=KamyarTaher" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
