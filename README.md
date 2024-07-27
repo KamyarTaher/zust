@@ -193,20 +193,6 @@ Creates a persist configuration object.
 
 A configuration object for persistence.
 
-### `createPersister`
-
-Creates a persister function for integrating with Zustand.
-
-**Parameters:**
-
-- `storeCreator`: The store creator function.
-- `persistOption`: Configuration for persistence.
-- `storageName`: Name for the storage.
-
-**Returns:**
-
-A store creator function with persistence.
-
 ### `loggingMiddleware`
 
 A middleware for logging state changes.
