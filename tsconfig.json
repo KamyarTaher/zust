@@ -12,8 +12,7 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "noEmit": true,
-
+ 
     // Best practices
     "strict": true,
     "skipLibCheck": true,
@@ -31,6 +30,7 @@
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "emitDeclarationOnly": true,
     "rootDir": "./src",
     "outDir": "./dist"
   },
