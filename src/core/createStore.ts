@@ -29,7 +29,7 @@ import type {
  * @param options - Configuration options for the store.
  * @returns The created store and utility functions.
  */
-export function createGenericStore<T extends object>(
+export function createStore<T extends object>(
   initialState: T,
   options: StoreOptions<T> = {}
 ): StoreCreationResult<T> {

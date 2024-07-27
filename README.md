@@ -39,7 +39,7 @@ bun install zust
 Here is a basic example of how to use Zust State Management:
 
 ```javascript
-import { createGenericStore } from 'zust';
+import { createStore } from 'zust';
 
 // Define the initial state
 const initialState = {
@@ -48,7 +48,7 @@ const initialState = {
 };
 
 // Create the store
-const { useSelectors, setDeep } = createGenericStore(initialState);
+const { useSelectors, setDeep } = createStore(initialState);
 
 // Example of using selectors
 function ExampleComponent() {
@@ -77,7 +77,7 @@ function ExampleComponent() {
 Aliases are primarily used to avoid conflicts between property names or to clarify the usage of deeply nested properties. You can use aliases by appending `:` to the path to rename the properties in the selector results.
 
 ```javascript
-import { createGenericStore } from 'zust';
+import { createStore } from 'zust';
 
 // Define the initial state
 const initialState = {
@@ -86,7 +86,7 @@ const initialState = {
 };
 
 // Create the store
-const { useSelectors, setDeep } = createGenericStore(initialState);
+const { useSelectors, setDeep } = createStore(initialState);
 
 // Example of using selectors with aliases
 function ExampleComponent() {
@@ -118,7 +118,7 @@ With Zust, you can create a single central store for your entire application or 
 **Single Central Store Example:**
 
 ```javascript
-import { createGenericStore } from 'zust';
+import { createStore } from 'zust';
 
 // Define the initial state
 const initialState = {
@@ -127,13 +127,13 @@ const initialState = {
 };
 
 // Create the central store
-const { useSelectors, setDeep } = createGenericStore(initialState);
+const { useSelectors, setDeep } = createStore(initialState);
 ```
 
 **Multiple Smaller Stores Example:**
 
 ```javascript
-import { createGenericStore } from 'zust';
+import { createStore } from 'zust';
 
 // Define states for different modules
 const userState = {
@@ -146,8 +146,8 @@ const settingsState = {
 };
 
 // Create separate stores
-const { useSelectors: useUserSelectors, setDeep: setUserDeep } = createGenericStore(userState);
-const { useSelectors: useSettingsSelectors, setDeep: setSettingsDeep } = createGenericStore(settingsState);
+const { useSelectors: useUserSelectors, setDeep: setUserDeep } = createStore(userState);
+const { useSelectors: useSettingsSelectors, setDeep: setSettingsDeep } = createStore(settingsState);
 ```
 
 ## Persistence
@@ -155,7 +155,7 @@ const { useSelectors: useSettingsSelectors, setDeep: setSettingsDeep } = createG
 Zust allows you to store to the localStorage parts of your state using a persistence configuration. You can choose to persist an entire branch of the state or specific paths within the state.
 
 ```javascript
-import { createGenericStore, createPersistConfig, createPersister } from 'zust';
+import { createStore, createPersistConfig, createPersister } from 'zust';
 
 // Define the initial state
 const initialState = {
@@ -168,7 +168,7 @@ const persistConfig = createPersistConfig('user', 'settings.theme');
 
 // Create the store with persistence
 const { useSelectors, setDeep } = createPersister(
-  createGenericStore,
+  createStore,
   persistConfig,
  'optionalStorageNamePrefix'
 );
@@ -177,7 +177,7 @@ const { useSelectors, setDeep } = createPersister(
 
 ## API Reference
 
-### `createGenericStore`
+### `createStore`
 
 Creates a Zustand store with various options.
 
