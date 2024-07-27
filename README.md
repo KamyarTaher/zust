@@ -4,7 +4,8 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing the application state.
-! WARNING, PACKAGE IS NOT WORKING YET. BUT YOU CAN CLONE THE REPO AND USE ZUST TO TEST IT.
+
+WARNING, PACKAGE IS NOT WORKING YET. BUT YOU CAN CLONE THE REPO AND USE ZUST TO TEST IT!
 ## Live Example
 
 Check out this interactive example on CodeSandbox to see Zust in action:
