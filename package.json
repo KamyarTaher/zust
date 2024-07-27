@@ -1,6 +1,6 @@
 {
   "name": "zust",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "A powerful state manager based on Zustand",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
