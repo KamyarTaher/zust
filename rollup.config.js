@@ -20,8 +20,7 @@ export default {
   plugins: [
     typescript({
       tsconfig: "tsconfig.json",
-      clean: true,
-      useTsconfigDeclarationDir: true, // Ajoutez cette ligne
+      useTsconfigDeclarationDir: true, // Ensures type declarations go to dist
     }),
   ],
   external: ["zustand", "react"],

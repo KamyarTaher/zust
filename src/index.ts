@@ -1,3 +1,3 @@
 export { createStore } from "./core/createStore";
 export { createPersistConfig } from "./core/persistConfig";
-export * from "./types";
+export type { Store, StoreOptions, Plugin, Middleware } from "./types";

@@ -2,9 +2,9 @@
   "name": "zust",
   "version": "0.1.4",
   "description": "A powerful state manager based on Zustand",
-  "main": "dist/index.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/index.js", // CommonJS entry
+  "module": "dist/index.esm.js", // ES Module entry
+  "types": "dist/index.d.ts", // TypeScript declaration
   "files": [
     "dist"
   ],
