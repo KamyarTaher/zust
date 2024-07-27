@@ -50,17 +50,17 @@ const initialState = {
 // Create the store
 const { useSelectors, setDeep } = createStore(initialState);
 
-// Example of using selectors
 function ExampleComponent() {
-  // Automatic type inference and path suggestion for all functions' input and output.
+  // Select a state
   const { age } = useSelectors('user.age');
-  // You can simply select as many state you want
+  // You can select as many state you want
   const { name, theme } = useSelectors('user.name', 'settings.theme');
-  // 'user.name' and 'settings.theme' are inferred as strings, then name and theme will be suggested
+  // All input path string are suggested by the IDE and are strongly typed, making the selection easy and safe
+  // The same goes for the destructured object returned, only the selected state will be suggested
 
-  // Update state at any depth just by specifying the path
+  // Update a state at any depth directly by specifying the path
   const onClick1 = () => setDeep('user.name', 'Jane');
-  // You can have access to the current state and return a new one
+  // You have to the current state
   const onClick2 = () => setDeep('settings.theme', (prev) => prev === 'light' ? 'dark' : 'light');
 
   return (
@@ -104,8 +104,6 @@ function ExampleComponent() {
   return (
     <div>
       <p>User Name: {name}</p>
-      <p>Second User Name: {secondName}</p>
-      <p>Theme: {theme}</p>
       <button onClick={onClick}>Update User Name</button>
     </div>
   );
