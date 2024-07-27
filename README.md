@@ -231,6 +231,23 @@ Integrates the store with Redux DevTools.
 
 None. This function enhances the store with DevTools support.
 
+## Options
+
+### `StoreOptions<T>`
+
+- **`persist?: boolean | PersistConfig<T>`**: Enable or configure state persistence. If `true`, all states are persisted. Use `PersistConfig` for fine-grained control.
+
+- **`prefix?: string`**: Add a prefix to the localStorage name.
+
+- **`logging?: boolean`**: Enable logging of state changes to the console.
+
+- **`middleware?: Middleware<T>[]`**: Array of middleware functions to enhance or modify store operations.
+
+- **`computedValues?: { [key: string]: (state: T) => any }`**: Define calculated values derived from the state.
+
+- **`plugins?: Plugin<T>[]`**: Array of plugins to enhance or modify store behavior.
+
+
 ## Tests
 
 The package includes tests to verify the functionality of the Zust store:
@@ -238,7 +255,7 @@ The package includes tests to verify the functionality of the Zust store:
 - **Integration Tests**: Verify that hooks and state updates work correctly.
 - **Unit Tests**: Test store creation, state updates, and middleware.
 
-Feel free to contribute by submitting issues or pull requests.
+Please feel free to submit issues or pull requests.
 
 ## License
 
