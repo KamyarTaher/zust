@@ -97,7 +97,7 @@ function ExampleComponent() {
     'settings.theme'
   );
 
-  const onClick = () => setDeep('user.profile2.name', 'John');
+  const onClick = () => setDeep('user.profile2.name', 'Jane');
 
   return (
     <div>
@@ -169,6 +169,11 @@ const persistConfig = createPersistConfig<typeof initialState>('user', 'settings
 // Create the store with persistence
 const { useSelectors, setDeep } = createStore(initialState, {
   persist: persistConfig,
+ });
+
+// You can set it to true if you want to persist the entire store.
+const { useSelectors, setDeep } = createStore(initialState, {
+  persist: true,
  });
 
 ```
