@@ -9,7 +9,9 @@ A lightweight state management library using Zustand. Zust provides a simple API
 ## Live Example
 
 Check out this interactive example on CodeSandbox to see Zust in action:
+
 ⚠ Package not working yet..
+
 [Open CodeSandbox Example](https://codesandbox.io/p/sandbox/zust-playground-34lrrp)
 
 ## Table of Contents
