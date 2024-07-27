@@ -155,7 +155,7 @@ const { useSelectors: useSettingsSelectors, setDeep: setSettingsDeep } = createS
 Zust allows you to store to the localStorage parts of your state using a persistence configuration. You can choose to persist an entire branch of the state or specific paths within the state.
 
 ```javascript
-import { createStore, createPersistConfig, createPersister } from 'zust';
+import { createStore, createPersistConfig } from 'zust';
 
 // Define the initial state
 const initialState = {
@@ -164,14 +164,12 @@ const initialState = {
 };
 
 // Create a persist configuration to persist the entire 'user' branch, but only 'theme' for the settings. Entering a branch name will persist all paths within that branch.
-const persistConfig = createPersistConfig('user', 'settings.theme');
+const persistConfig = createPersistConfig<typeof initialState>('user', 'settings.theme');
 
 // Create the store with persistence
-const { useSelectors, setDeep } = createPersister(
-  createStore,
-  persistConfig,
- 'optionalStorageNamePrefix'
-);
+const { useSelectors, setDeep } = createStore(initialState, {
+  persist: persistConfig,
+ });
 
 ```
 
