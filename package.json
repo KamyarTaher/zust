@@ -1,0 +1,50 @@
+{
+  "name": "zust",
+  "version": "0.1.0",
+  "description": "A powerful state manager based on Zustand",
+  "module": "index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist",
+    "test": "bun test",
+    "prepublishOnly": "bun run build"
+  },
+  "keywords": [
+    "state",
+    "management",
+    "zustand",
+    "react"
+  ],
+  "author": "Kamyar Taher",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.5.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "jsdom": "^24.1.1",
+    "@types/jsdom": "^21.1.7"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "zustand": "^4.3.0"
+  },
+  "dependencies": {
+    "zustand": "^4.5.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/zust.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/zust/issues"
+  },
+  "homepage": "https://github.com/yourusername/zust#readme"
+}
