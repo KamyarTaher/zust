@@ -2,9 +2,9 @@
   "name": "zust",
   "version": "0.1.4",
   "description": "A powerful state manager based on Zustand",
-  "main": "dist/index.js", // CommonJS entry
-  "module": "dist/index.esm.js", // ES Module entry
-  "types": "dist/index.d.ts", // TypeScript declaration
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -13,11 +13,26 @@
       "import": "./dist/index.esm.js",
       "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./core": {
+      "import": "./dist/core/index.esm.js",
+      "require": "./dist/core/index.js",
+      "types": "./dist/core/index.d.ts"
+    },
+    "./middleware": {
+      "import": "./dist/middleware/index.esm.js",
+      "require": "./dist/middleware/index.js",
+      "types": "./dist/middleware/index.d.ts"
+    },
+    "./plugins": {
+      "import": "./dist/plugins/index.esm.js",
+      "require": "./dist/plugins/index.js",
+      "types": "./dist/plugins/index.d.ts"
     }
   },
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "bun build ./src/index.ts --outdir ./dist",
+    "build:js": "bun build ./src/index.ts --outfile=./dist/index.js && bun build ./src/index.ts --outfile=./dist/index.esm.js --format=esm && bun build ./src/core/index.ts --outfile=./dist/core/index.js && bun build ./src/core/index.ts --outfile=./dist/core/index.esm.js --format=esm && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.js && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.esm.js --format=esm && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.js && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.esm.js --format=esm",
     "build": "bun run build:types && bun run build:js",
     "test": "bun test",
     "prepublishOnly": "bun run build"

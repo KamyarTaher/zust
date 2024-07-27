@@ -8,12 +8,13 @@
     "jsx": "react-jsx",
     "allowJs": true,
 
+    "emitDeclarationOnly": true,
+ 
     // Bundler mode
     "moduleResolution": "node", // Changez "bundler" en "node"
     "allowImportingTsExtensions": false, // Changez true en false
     "verbatimModuleSyntax": false, // Changez true en false
-    "emitDeclarationOnly": false, // Changez true en false
-    // Best practices
+     // Best practices
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
@@ -33,8 +34,8 @@
      "rootDir": "./src",
     "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts"],
-  "exclude": ["node_modules", "tests", "dist"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules", "dist", "tests"],
 }
 
 
