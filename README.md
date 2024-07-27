@@ -3,7 +3,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing application state.
+A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing the application state.
 
 ## Live Example
 
@@ -53,11 +53,11 @@ const { useSelectors, setDeep } = createStore(initialState);
 // Example of using selectors
 function ExampleComponent() {
   // Automatic type inference and path suggestion for all functions' input and output
-  // 'user.name' and 'settings.theme' are inferred as strings, and name and theme are also suggested
+  // 'user.name' and 'settings.theme' are inferred as strings, then name and theme will be suggested
   const { name, theme } = useSelectors('user.name', 'settings.theme');
 
   // Update state at any depth just by specifying the path
-  const onClick1 = () => setDeep('user.name', 'John');
+  const onClick1 = () => setDeep('user.name', 'Jane');
   // Also, you can have access to the current state and return a new one
   const onClick2 = () => setDeep('settings.theme', (prev) => prev === 'light' ? 'dark' : 'light');
 
@@ -97,7 +97,7 @@ function ExampleComponent() {
     'settings.theme'
   );
 
-  const onClick = () => setDeep('user.profile2.name', 'John');
+  const onClick = () => setDeep('user.profile2.name', 'Jane');
 
   return (
     <div>
@@ -171,13 +171,18 @@ const { useSelectors, setDeep } = createStore(initialState, {
   persist: persistConfig,
  });
 
+// You can set it to true if you want to persist the entire store.
+// const { useSelectors, setDeep } = createStore(initialState, {
+//  persist: true,
+// });
+
 ```
 
 ## API Reference
 
 ### `createStore`
 
-Creates a Zustand store with various options.
+Creates a Zust store with various options.
 
 **Parameters:**
 
@@ -218,13 +223,30 @@ Integrates the store with Redux DevTools.
 
 **Parameters:**
 
-- `useStore`: Zustand store hook.
+- `useStore`: Zust store hook.
 - `storageName`: Name for Redux DevTools.
 - `initialState`: Initial state of the store.
 
 **Returns:**
 
 None. This function enhances the store with DevTools support.
+
+## Options
+
+### `StoreOptions<T>`
+
+- **`persist?: boolean | PersistConfig<T>`**: Enable or configure state persistence. If `true`, all states are persisted. Use `PersistConfig` for fine-grained control.
+
+- **`prefix?: string`**: Add a prefix to the localStorage name.
+
+- **`logging?: boolean`**: Enable logging of state changes to the console.
+
+- **`middleware?: Middleware<T>[]`**: Array of middleware functions to enhance or modify store operations.
+
+- **`computedValues?: { [key: string]: (state: T) => any }`**: Define calculated values derived from the state.
+
+- **`plugins?: Plugin<T>[]`**: Array of plugins to enhance or modify store behavior.
+
 
 ## Tests
 
@@ -233,7 +255,7 @@ The package includes tests to verify the functionality of the Zust store:
 - **Integration Tests**: Verify that hooks and state updates work correctly.
 - **Unit Tests**: Test store creation, state updates, and middleware.
 
-Feel free to contribute by submitting issues or pull requests.
+Please feel free to submit issues or pull requests.
 
 ## License
 
