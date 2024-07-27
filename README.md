@@ -172,9 +172,9 @@ const { useSelectors, setDeep } = createStore(initialState, {
  });
 
 // You can set it to true if you want to persist the entire store.
-const { useSelectors, setDeep } = createStore(initialState, {
-  persist: true,
- });
+// const { useSelectors, setDeep } = createStore(initialState, {
+//  persist: true,
+// });
 
 ```
 
