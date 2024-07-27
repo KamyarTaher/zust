@@ -3,7 +3,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing application state.
+A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing the application state.
 
 ## Live Example
 
@@ -182,7 +182,7 @@ const { useSelectors, setDeep } = createStore(initialState, {
 
 ### `createStore`
 
-Creates a Zustand store with various options.
+Creates a Zust store with various options.
 
 **Parameters:**
 
@@ -223,7 +223,7 @@ Integrates the store with Redux DevTools.
 
 **Parameters:**
 
-- `useStore`: Zustand store hook.
+- `useStore`: Zust store hook.
 - `storageName`: Name for Redux DevTools.
 - `initialState`: Initial state of the store.
 
