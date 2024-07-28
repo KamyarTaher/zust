@@ -5,9 +5,12 @@
 
 A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing the application state.
 
+⚠ WARNING, PACKAGE IS NOT WORKING YET. BUT YOU CAN CLONE THE REPO AND USE ZUST TO TEST IT! ⚠
 ## Live Example
 
 Check out this interactive example on CodeSandbox to see Zust in action:
+
+⚠ Package not working yet..
 
 [Open CodeSandbox Example](https://codesandbox.io/p/sandbox/zust-playground-34lrrp)
 
@@ -50,15 +53,17 @@ const initialState = {
 // Create the store
 const { useSelectors, setDeep } = createStore(initialState);
 
-// Example of using selectors
 function ExampleComponent() {
-  // Automatic type inference and path suggestion for all functions' input and output
-  // 'user.name' and 'settings.theme' are inferred as strings, then name and theme will be suggested
+  // Select a state
+  const { age } = useSelectors('user.age');
+  // You can select as many state you want
   const { name, theme } = useSelectors('user.name', 'settings.theme');
+  // All input path string are suggested by the IDE and are strongly typed, making the selection easy and safe
+  // The same goes for the destructured object returned, only the selected state will be suggested
 
-  // Update state at any depth just by specifying the path
+  // Update a state at any depth directly by specifying the path
   const onClick1 = () => setDeep('user.name', 'Jane');
-  // Also, you can have access to the current state and return a new one
+  // You have to the current state
   const onClick2 = () => setDeep('settings.theme', (prev) => prev === 'light' ? 'dark' : 'light');
 
   return (
@@ -102,8 +107,6 @@ function ExampleComponent() {
   return (
     <div>
       <p>User Name: {name}</p>
-      <p>Second User Name: {secondName}</p>
-      <p>Theme: {theme}</p>
       <button onClick={onClick}>Update User Name</button>
     </div>
   );
