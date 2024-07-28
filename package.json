@@ -1,6 +1,6 @@
 {
   "name": "zust",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "A powerful state manager based on Zustand",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -32,7 +32,7 @@
   },
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "bun build ./src/index.ts --outfile=./dist/index.js --external:react --external:react-dom && bun build ./src/index.ts --outfile=./dist/index.esm.js --format=esm --external:react --external:react-dom && bun build ./src/core/index.ts --outfile=./dist/core/index.js --external:react --external:react-dom && bun build ./src/core/index.ts --outfile=./dist/core/index.esm.js --format=esm --external:react --external:react-dom && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.js --external:react --external:react-dom && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.esm.js --format=esm --external:react --external:react-dom && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.js --external:react --external:react-dom && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.esm.js --format=esm --external:react --external:react-dom",
+    "build:js": "bun build ./src/index.ts --outfile=./dist/index.js --external:react --external:react-dom --external:zustand && bun build ./src/index.ts --outfile=./dist/index.esm.js --format=esm --external:react --external:react-dom --external:zustand && bun build ./src/core/index.ts --outfile=./dist/core/index.js --external:react --external:react-dom --external:zustand && bun build ./src/core/index.ts --outfile=./dist/core/index.esm.js --format=esm --external:react --external:react-dom --external:zustand && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.js --external:react --external:react-dom --external:zustand && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.esm.js --format=esm --external:react --external:react-dom --external:zustand && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.js --external:react --external:react-dom --external:zustand && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.esm.js --format=esm --external:react --external:react-dom --external:zustand",
     "build": "bun run build:types && bun run build:js",
     "test": "bun test",
     "prepublishOnly": "bun run build"
@@ -56,8 +56,8 @@
     "react-dom": "^18.3.1"
   },
   "peerDependencies": {
-    "react": "^17.0.0 || ^18.0.0",
-    "react-dom": "^17.0.0 || ^18.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "zustand": "^4.0.0"
   },
   "dependencies": {
