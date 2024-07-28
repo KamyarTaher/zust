@@ -32,7 +32,7 @@
   },
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "bun build ./src/index.ts --outfile=./dist/index.js && bun build ./src/index.ts --outfile=./dist/index.esm.js --format=esm && bun build ./src/core/index.ts --outfile=./dist/core/index.js && bun build ./src/core/index.ts --outfile=./dist/core/index.esm.js --format=esm && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.js && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.esm.js --format=esm && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.js && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.esm.js --format=esm",
+    "build:js": "bun build ./src/index.ts --outfile=./dist/index.js --external:react --external:react-dom && bun build ./src/index.ts --outfile=./dist/index.esm.js --format=esm --external:react --external:react-dom && bun build ./src/core/index.ts --outfile=./dist/core/index.js --external:react --external:react-dom && bun build ./src/core/index.ts --outfile=./dist/core/index.esm.js --format=esm --external:react --external:react-dom && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.js --external:react --external:react-dom && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.esm.js --format=esm --external:react --external:react-dom && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.js --external:react --external:react-dom && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.esm.js --format=esm --external:react --external:react-dom",
     "build": "bun run build:types && bun run build:js",
     "test": "bun test",
     "prepublishOnly": "bun run build"
@@ -70,5 +70,6 @@
   "bugs": {
     "url": "https://github.com/KamyarTaher/zust/issues"
   },
-  "homepage": "https://github.com/KamyarTaher/zust#readme"
+  "homepage": "https://github.com/KamyarTaher/zust#readme",
+  "sideEffects": false
 }
