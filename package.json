@@ -1,6 +1,6 @@
 {
   "name": "zust",
-  "version": "0.1.17",
+  "version": "0.1.18",
   "description": "A powerful state manager based on Zustand",
   "type": "module",
   "main": "dist/index.js",
@@ -11,15 +11,15 @@
   ],
   "scripts": {
     "dev": "bun run src/index.ts",
-    "build": "bun build src/index.ts --outdir=dist && tsc --emitDeclarationOnly --outDir dist",
+    "build": "bun build --config bun-build.config.js && tsc --emitDeclarationOnly --outDir dist",
     "test": "bun test",
     "prepublishOnly": "bun run build"
   },
   "keywords": [
-    "state",
-    "management",
-    "zustand",
-    "react"
+    "bun",
+    "state management",
+    "store",
+    "zustand"
   ],
   "author": "Kamyar Taher",
   "license": "MIT",
@@ -34,7 +34,7 @@
     "react-dom": "^18.3.1"
   },
   "peerDependencies": {
-    "react": ">=17.0.0",
+    "react": "^18.0.0",
     "react-dom": ">=17.0.0",
     "zustand": "^4.0.0"
   },
