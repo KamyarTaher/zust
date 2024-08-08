@@ -1,39 +1,17 @@
 {
   "name": "zust",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "A powerful state manager based on Zustand",
+  "type": "module",
   "main": "dist/index.js",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "exports": {
-    ".": {
-      "import": "./dist/index.esm.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./core": {
-      "import": "./dist/core/index.esm.js",
-      "require": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
-    },
-    "./middleware": {
-      "import": "./dist/middleware/index.esm.js",
-      "require": "./dist/middleware/index.js",
-      "types": "./dist/middleware/index.d.ts"
-    },
-    "./plugins": {
-      "import": "./dist/plugins/index.esm.js",
-      "require": "./dist/plugins/index.js",
-      "types": "./dist/plugins/index.d.ts"
-    }
-  },
   "scripts": {
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "bun build ./src/index.ts --outfile=./dist/index.js --external:react --external:react-dom --external:zustand && bun build ./src/index.ts --outfile=./dist/index.esm.js --format=esm --external:react --external:react-dom --external:zustand && bun build ./src/core/index.ts --outfile=./dist/core/index.js --external:react --external:react-dom --external:zustand && bun build ./src/core/index.ts --outfile=./dist/core/index.esm.js --format=esm --external:react --external:react-dom --external:zustand && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.js --external:react --external:react-dom --external:zustand && bun build ./src/middleware/index.ts --outfile=./dist/middleware/index.esm.js --format=esm --external:react --external:react-dom --external:zustand && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.js --external:react --external:react-dom --external:zustand && bun build ./src/plugins/index.ts --outfile=./dist/plugins/index.esm.js --format=esm --external:react --external:react-dom --external:zustand",
-    "build": "bun run build:types && bun run build:js",
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --outdir=dist && tsc --emitDeclarationOnly --outDir dist",
     "test": "bun test",
     "prepublishOnly": "bun run build"
   },
@@ -56,8 +34,8 @@
     "react-dom": "^18.3.1"
   },
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react": ">=17.0.0",
+    "react-dom": ">=17.0.0",
     "zustand": "^4.0.0"
   },
   "dependencies": {
@@ -70,6 +48,5 @@
   "bugs": {
     "url": "https://github.com/KamyarTaher/zust/issues"
   },
-  "homepage": "https://github.com/KamyarTaher/zust#readme",
-  "sideEffects": false
+  "homepage": "https://github.com/KamyarTaher/zust#readme"
 }
