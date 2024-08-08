@@ -1,9 +1,8 @@
-import { create } from "zustand";
-import { useShallow } from "zustand/react/shallow";
+import { createWithEqualityFn } from "zustand/traditional";
+import { shallow } from "zustand/shallow";
 import {
   getNestedValue,
   setNestedValue,
-  getLastPart,
   combineMiddlewares,
   stableHash,
   deepMerge,
@@ -19,7 +18,10 @@ import type {
   Path,
   PathValue,
   SetStateAction,
+  SelectorResult,
+  StoreCreator,
 } from "../types";
+import { StoreApi, UseBoundStore } from "zustand";
 
 /**
  * Creates a generic store with advanced features like nested state management,
@@ -144,7 +146,9 @@ export function createStore<T extends object>(
     );
   }
 
-  const useStore = create<Store<T>>(finalStoreCreator);
+  const useStore: UseBoundStore<StoreApi<Store<T>>> = createWithEqualityFn<
+    Store<T>
+  >(storeCreator as StoreCreator<T>, shallow);
 
   /**
    * Custom hook to use selected parts of the state.
@@ -152,30 +156,30 @@ export function createStore<T extends object>(
    * @param selectors - List of selectors in the format "path:alias".
    * @returns The selected state values.
    */
-  function useSelectors<S extends SelectorConfig<T>[]>(...selectors: S) {
-    return useStore(
-      useShallow((state) => {
-        return selectors.reduce((acc, selector) => {
-          const [path, alias] = (selector as string).split(":") as [
-            string,
-            string | undefined
-          ];
-          const key = alias || getLastPart(path);
-          (acc as any)[key] = getNestedValue(state, path);
-          return acc;
-        }, {} as any);
-      })
-    );
-  }
+  const useSelectors = <S extends SelectorConfig<T>[]>(
+    ...selectors: S
+  ): SelectorResult<T, S> => {
+    return useStore((state) => {
+      return selectors.reduce((acc, selector) => {
+        const [path, alias] = (selector as string).split(":") as [
+          string,
+          string | undefined
+        ];
+        const key = alias || path.split(".").pop()!;
+        (acc as any)[key] = getNestedValue(state, path);
+        return acc;
+      }, {} as SelectorResult<T, S>);
+    });
+  };
 
   // Initialize dev tools plugin
   devToolsPlugin(useStore, storageName, initialState);
 
   return {
+    useStore,
     useSelectors,
     setDeep: useStore.getState().setDeep,
     subscribe: useStore.getState().subscribe,
     getState: useStore.getState,
-    useStore,
   };
 }
