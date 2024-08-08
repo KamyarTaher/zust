@@ -1,3 +1,4 @@
+// @ts-ignore
 import * as React from "react";
 export { createStore } from "./core";
 export { createPersistConfig } from "./core/persistConfig";

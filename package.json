@@ -1,6 +1,6 @@
 {
   "name": "zust",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "A powerful state manager based on Zustand",
   "type": "module",
   "main": "dist/index.js",
