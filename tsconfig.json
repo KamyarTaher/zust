@@ -16,7 +16,10 @@
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node"],
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
   },
   "include": ["src/**/*", "tests/**/*"],
   "exclude": ["node_modules", "dist"]
