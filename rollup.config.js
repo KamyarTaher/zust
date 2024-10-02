@@ -1,9 +1,8 @@
-// rollup.config.js
+import typescript from "@rollup/plugin-typescript"; // Use the official plugin
 import peerDepsExternal from "rollup-plugin-peer-deps-external";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
-import typescript from "rollup-plugin-typescript2";
-import json from "@rollup/plugin-json"; // Import the plugin
+import json from "@rollup/plugin-json";
 
 export default {
   input: "src/index.ts",
@@ -12,6 +11,7 @@ export default {
       file: "dist/index.cjs.js",
       format: "cjs",
       sourcemap: true,
+      exports: "named",
     },
     {
       file: "dist/index.esm.js",
@@ -21,10 +21,14 @@ export default {
   ],
   external: ["react", "react-dom", "zustand"],
   plugins: [
+    typescript({
+      tsconfig: "tsconfig.json",
+      declaration: true,
+      declarationDir: "./dist/types",
+    }),
     peerDepsExternal(),
     resolve(),
     commonjs(),
-    typescript({ useTsconfigDeclarationDir: true }),
-    json(), // Add the plugin to the plugins array
+    json(),
   ],
 };
