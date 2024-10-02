@@ -1,7 +1,6 @@
 // test/integration.test.ts
 import { render, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
-
 import { createStore } from "../src/index";
 
 describe("Zust Integration", () => {
@@ -31,7 +30,6 @@ describe("Zust Integration", () => {
 
   test("state updates trigger re-renders", () => {
     const { useSelectors, setDeep } = createStore({ counter: 0 });
-
     let renderCount = 0;
     function TestComponent() {
       const { counter } = useSelectors("counter");

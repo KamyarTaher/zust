@@ -1,6 +1,4 @@
-src
-tests
-.gitignore
-.npmignore
-tsconfig.json
-rollup.config.js
+# Exclude unnecessary files
+src/
+node_modules/
+test/
