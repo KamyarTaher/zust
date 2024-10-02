@@ -33,14 +33,14 @@ export function createPersister(
     partialize:
       typeof persistOption === "object"
         ? (state: any) => {
-            // Retain only the specified parts of the state for persistence
-            return Object.keys(persistOption).reduce((persisted, key) => {
-              if (persistOption[key]) {
-                persisted[key] = state[key];
-              }
-              return persisted;
-            }, {} as any);
-          }
+          // Retain only the specified parts of the state for persistence
+          return Object.keys(persistOption).reduce((persisted, key) => {
+            if (persistOption[key]) {
+              persisted[key] = state[key];
+            }
+            return persisted;
+          }, {} as any);
+        }
         : (state: any) => state,
   };
 

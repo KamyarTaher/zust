@@ -1,87 +1,60 @@
-import { expect, test, describe, beforeEach, afterEach } from "bun:test";
+// test/integration.test.ts
+import { render, act } from "@testing-library/react";
+import "@testing-library/jest-dom";
+
 import { createStore } from "../src/index";
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { JSDOM } from "jsdom";
-
-let dom: JSDOM;
-let container: HTMLDivElement;
-let root: ReturnType<typeof createRoot>;
-
-beforeEach(() => {
-  dom = new JSDOM('<!DOCTYPE html><div id="root"></div>');
-  global.document = dom.window.document;
-  global.window = dom.window as any;
-  container = document.getElementById("root") as HTMLDivElement;
-  root = createRoot(container);
-});
-
-afterEach(() => {
-  if (root) {
-    root.unmount();
-  }
-  dom.window.close();
-});
 
 describe("Zust Integration", () => {
-  test("useSelectors hook selects correct values", async () => {
+  test("useSelectors hook selects correct values", () => {
     const initialState = {
       user: { name: "John", age: 30 },
-      settings: { theme: "light" as const },
+      settings: { theme: "light" },
     };
 
     const { useSelectors } = createStore(initialState);
 
-    let result: any;
+    let result: { name: string; theme: string } = { name: "", theme: "" };
     function TestComponent() {
-      // Immediately use selectors to capture result
-      result = useSelectors("user.name", "settings.theme");
+      result = useSelectors("user.name", "settings.theme") as {
+        name: string;
+        theme: string;
+      };
       return null;
     }
 
-    await new Promise<void>((resolve) => {
-      root.render(<TestComponent />);
-      setTimeout(() => {
-        // Wait for state and component to update
-        resolve();
-      }, 0);
-    });
+    render(<TestComponent />);
 
     // Validate results after component renders
     expect(result.name).toBe("John");
     expect(result.theme).toBe("light");
   });
 
-  test("state updates trigger re-renders", async () => {
+  test("state updates trigger re-renders", () => {
     const { useSelectors, setDeep } = createStore({ counter: 0 });
 
     let renderCount = 0;
     function TestComponent() {
       const { counter } = useSelectors("counter");
       renderCount++;
-      return <div>{counter}</div>;
+      return <div data-testid="counter">{counter}</div>;
     }
 
-    // Render component initially
-    await new Promise<void>((resolve) => {
-      root.render(<TestComponent />);
-      setTimeout(() => {
-        resolve();
-      }, 0);
-    });
+    const { getByTestId, unmount } = render(<TestComponent />);
 
     // Check initial render count
     expect(renderCount).toBe(1);
+    expect(getByTestId("counter")).toHaveTextContent("0");
 
-    // Update state and re-render
-    await new Promise<void>((resolve) => {
+    // Update state and flush updates
+    act(() => {
       setDeep("counter", (prev) => prev + 1);
-      setTimeout(() => {
-        resolve();
-      }, 0);
     });
 
     // Check updated render count
     expect(renderCount).toBe(2);
+    expect(getByTestId("counter")).toHaveTextContent("1");
+
+    // Cleanup
+    unmount();
   });
 });

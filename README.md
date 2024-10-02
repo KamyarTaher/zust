@@ -1,16 +1,13 @@
 # Zust State Management
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![npm version](https://img.shields.io/npm/v/zust)](https://www.npmjs.com/package/zust)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-A lightweight state management library using Zustand. Zust provides a simple API and a minimalistic approach for managing the application state.
+A lightweight and powerful state management library built on top of [Zustand](https://github.com/pmndrs/zustand). Zust provides a simple API and a minimalistic approach for managing application state with ease.
 
-⚠ WARNING, PACKAGE IS NOT WORKING YET. BUT YOU CAN CLONE THE REPO AND USE ZUST TO TEST IT! ⚠
 ## Live Example
 
 Check out this interactive example on CodeSandbox to see Zust in action:
-
-⚠ Package not working yet..
 
 [Open CodeSandbox Example](https://codesandbox.io/p/sandbox/zust-playground-34lrrp)
 
@@ -18,12 +15,23 @@ Check out this interactive example on CodeSandbox to see Zust in action:
 
 - [Installation](#installation)
 - [Usage](#usage)
-- [API Reference](#api-reference)
+  - [Basic Usage](#basic-usage)
+  - [Usage with Aliases](#usage-with-aliases)
+  - [Central Store vs. Multiple Stores](#central-store-vs-multiple-stores)
 - [Persistence](#persistence)
+- [API Reference](#api-reference)
+  - [`createStore`](#createstore)
+  - [`createPersistConfig`](#createpersistconfig)
+  - [`loggingMiddleware`](#loggingmiddleware)
+  - [`devToolsPlugin`](#devtoolsplugin)
+- [Options](#options)
 - [Tests](#tests)
 - [License](#license)
+- [Contributors ✨](#contributors-)
 
 ## Installation
+
+Install `zust` using npm or bun:
 
 To install `zust`, use one of the following commands:
 
@@ -39,7 +47,7 @@ bun install zust
 
 ## Usage
 
-Here is a basic example of how to use Zust State Management:
+Here is a basic example of how to use Zust:
 
 ```javascript
 import { createStore } from 'zust';
@@ -54,82 +62,75 @@ const initialState = {
 const { useSelectors, setDeep } = createStore(initialState);
 
 function ExampleComponent() {
-  // Select a state
-  const { age } = useSelectors('user.age');
-  // You can select as many state you want
+  // Select state values
   const { name, theme } = useSelectors('user.name', 'settings.theme');
-  // All input path string are suggested by the IDE and are strongly typed, making the selection easy and safe
-  // The same goes for the destructured object returned, only the selected state will be suggested
 
-  // Update a state at any depth directly by specifying the path
-  const onClick1 = () => setDeep('user.name', 'Jane');
-  // You have to the current state
-  const onClick2 = () => setDeep('settings.theme', (prev) => prev === 'light' ? 'dark' : 'light');
+  // Update state values
+  const updateName = () => setDeep('user.name', 'Jane');
+  const toggleTheme = () => setDeep('settings.theme', (prev) => (prev === 'light' ? 'dark' : 'light'));
 
   return (
     <div>
       <p>User Name: {name}</p>
       <p>Theme: {theme}</p>
-      <button onClick={onClick1}>Update User Name</button>
-      <button onClick={onClick2}>Update Theme</button>
+      <button onClick={updateName}>Update User Name</button>
+      <button onClick={toggleTheme}>Toggle Theme</button>
     </div>
-  );    
+  );
 }
 ```
 
 ### Usage with Aliases
 
-Aliases are primarily used to avoid conflicts between property names or to clarify the usage of deeply nested properties. You can use aliases by appending `:` to the path to rename the properties in the selector results.
+Aliases help avoid conflicts and clarify the usage of deeply nested properties. Use aliases by appending `:` to the path.
 
 ```javascript
 import { createStore } from 'zust';
 
-// Define the initial state
 const initialState = {
-  user: { profile: { name: 'John', email: 'john@example.com' }, profile2: { name: 'Albert', email: 'albert@example.com' } },
+  user: {
+    profile: { name: 'John', email: 'john@example.com' },
+    profile2: { name: 'Albert', email: 'albert@example.com' },
+  },
   settings: { theme: 'dark' },
 };
 
-// Create the store
 const { useSelectors, setDeep } = createStore(initialState);
 
-// Example of using selectors with aliases
 function ExampleComponent() {
-  // Use aliases to avoid conflicts and make paths clearer
   const { name, secondName, theme } = useSelectors(
     'user.profile.name:name',
     'user.profile2.name:secondName',
     'settings.theme'
   );
 
-  const onClick = () => setDeep('user.profile2.name', 'Jane');
+  const updateSecondName = () => setDeep('user.profile2.name', 'Jane');
 
   return (
     <div>
       <p>User Name: {name}</p>
-      <button onClick={onClick}>Update User Name</button>
+      <p>Second User Name: {secondName}</p>
+      <p>Theme: {theme}</p>
+      <button onClick={updateSecondName}>Update Second User Name</button>
     </div>
   );
 }
-
 ```
 
 ### Central Store vs. Multiple Stores
 
-With Zust, you can create a single central store for your entire application or multiple smaller stores, depending on your needs. Both approaches are straightforward and flexible.
+You can create a single central store or multiple smaller stores, depending on your application's needs.
 
 **Single Central Store Example:**
 
 ```javascript
 import { createStore } from 'zust';
 
-// Define the initial state
 const initialState = {
   user: { name: 'John', age: 30 },
   settings: { theme: 'light' },
 };
 
-// Create the central store
 const { useSelectors, setDeep } = createStore(initialState);
 ```
 
@@ -138,71 +139,79 @@ const { useSelectors, setDeep } = createStore(initialState);
 ```javascript
 import { createStore } from 'zust';
 
-// Define states for different modules
+// User store
 const userState = {
   name: 'John',
-  age: 30
+  age: 30,
 };
 
-const settingsState = {
-  theme: 'light'
-};
-
-// Create separate stores
 const { useSelectors: useUserSelectors, setDeep: setUserDeep } = createStore(userState);
+
+// Settings store
+const settingsState = {
+  theme: 'light',
+};
+
 const { useSelectors: useSettingsSelectors, setDeep: setSettingsDeep } = createStore(settingsState);
+
 ```
 
 ## Persistence
 
-Zust allows you to store to the localStorage parts of your state using a persistence configuration. You can choose to persist an entire branch of the state or specific paths within the state.
+Zust allows you to persist parts of your state using localStorage. You can choose to persist entire branches or specific paths.
 
 ```javascript
 import { createStore, createPersistConfig } from 'zust';
 
-// Define the initial state
 const initialState = {
   user: { name: 'John', age: 30 },
   settings: { theme: 'light', language: 'en' },
 };
 
-// Create a persist configuration to persist the entire 'user' branch, but only 'theme' for the settings. Entering a branch name will persist all paths within that branch.
-const persistConfig = createPersistConfig<typeof initialState>('user', 'settings.theme');
+// Create a persist configuration
+const persistConfig = createPersistConfig('user', 'settings.theme');
 
 // Create the store with persistence
 const { useSelectors, setDeep } = createStore(initialState, {
   persist: persistConfig,
- });
+});
 
-// You can set it to true if you want to persist the entire store.
-// const { useSelectors, setDeep } = createStore(initialState, {
-//  persist: true,
-// });
+```
+To persist the entire store, set `persist` to `true`:
 
+```javascript
+const { useSelectors, setDeep } = createStore(initialState, {
+  persist: true,
+});
 ```
 
 ## API Reference
 
 ### `createStore`
 
-Creates a Zust store with various options.
+Creates a Zust store with the provided initial state and options.
 
 **Parameters:**
 
 - `initialState`: The initial state of the store.
-- `options`: Options for configuring the store.
+- `options`: (optional): Configuration options.
 
 **Returns:**
 
-An object containing `useStore`, `useSelectors`, `setDeep`, and `subscribe`.
+An object containing:
+
+- `useStore`: The Zust store hook.
+- `useSelectors`: A hook to select state values.
+- `setDeep`: A function to update state values.
+- `subscribe`: A function to subscribe to state changes.
 
 ### `createPersistConfig`
 
-Creates a persist configuration object.
+Creates a configuration object for state persistence.
 
 **Parameters:**
 
-- `...paths`: Paths to the state that should be persisted. You can specify entire branches or individual paths.
+- `...paths`: State paths to persist.
 
 **Returns:**
 
@@ -210,55 +219,60 @@ A configuration object for persistence.
 
 ### `loggingMiddleware`
 
-A middleware for logging state changes.
+A middleware function for logging state changes.
 
-**Parameters:**
+#### Usage:
 
-- `storeCreator`: The store creator function.
+```javascript
+const options = {
+  middleware: [loggingMiddleware],
+};
 
-**Returns:**
+const { useSelectors, setDeep } = createStore(initialState, options);
 
-A new store creator function with logging.
+```
 
 ### `devToolsPlugin`
 
-Integrates the store with Redux DevTools.
+Integrates the store with Redux DevTools for state debugging.
 
-**Parameters:**
+#### Usage:
 
-- `useStore`: Zust store hook.
-- `storageName`: Name for Redux DevTools.
-- `initialState`: Initial state of the store.
+```javascript
+import { createStore, devToolsPlugin } from 'zust';
 
-**Returns:**
+const initialState = { /* ... */ };
 
-None. This function enhances the store with DevTools support.
+const { useStore } = createStore(initialState);
+
+devToolsPlugin(useStore, 'MyZustStore', initialState);
+```
 
 ## Options
 
 ### `StoreOptions<T>`
 
-- **`persist?: boolean | PersistConfig<T>`**: Enable or configure state persistence. If `true`, all states are persisted. Use `PersistConfig` for fine-grained control.
+- **`persist?: boolean | PersistConfig<T>`**: : Enable or configure state persistence.
 
-- **`prefix?: string`**: Add a prefix to the localStorage name.
+- **`prefix?: string`**: Prefix for the localStorage key.
 
-- **`logging?: boolean`**: Enable logging of state changes to the console.
+- **`logging?: boolean`**: Enable console logging of state changes.
 
-- **`middleware?: Middleware<T>[]`**: Array of middleware functions to enhance or modify store operations.
+- **`middleware?: Middleware<T>[]`**: Array of middleware functions.
 
-- **`computedValues?: { [key: string]: (state: T) => any }`**: Define calculated values derived from the state.
+- **`computedValues?: { [key: string]: (state: T) => any }`**: Define computed values.
 
-- **`plugins?: Plugin<T>[]`**: Array of plugins to enhance or modify store behavior.
+- **`plugins?: Plugin<T>[]`**: Array of plugins to enhance store behavior.
 
 
 ## Tests
 
-The package includes tests to verify the functionality of the Zust store:
+Zust includes tests to verify its functionality:
 
-- **Integration Tests**: Verify that hooks and state updates work correctly.
+- **Integration Tests**: Ensure hooks and state updates work correctly.
 - **Unit Tests**: Test store creation, state updates, and middleware.
 
-Please feel free to submit issues or pull requests.
+Contributions and pull requests for additional tests are welcome.
 
 ## License
 

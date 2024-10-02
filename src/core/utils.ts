@@ -115,8 +115,9 @@ export const combineMiddlewares = <T extends object>(
   middlewares: Middleware<T>[]
 ): Middleware<T> => {
   return middlewares.reduce(
-    (combinedMiddleware, middleware) => (next) =>
-      middleware(combinedMiddleware(next)),
-    (next: (state: T) => T) => next
+    (a, b) => (next) => a(b(next)),
+    (next) => next
   );
 };
+
+
