@@ -31,8 +31,6 @@ Check out this interactive example on CodeSandbox to see Zust in action:
 
 ## Installation
 
-Install `zust` using npm or bun:
-
 To install `zust`, use one of the following commands:
 
 ```
