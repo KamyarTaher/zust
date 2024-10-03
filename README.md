@@ -168,12 +168,9 @@ const initialState = {
   settings: { theme: 'light', language: 'en' },
 };
 
-// Create a persist configuration
-const persistConfig = createPersistConfig('user', 'settings.theme');
-
 // Create the store with persistence
 const { useSelectors, setDeep } = createStore(initialState, {
-  persist: persistConfig,
+  persist: createPersistConfig('user', 'settings.theme'),
 });
 
 ```
