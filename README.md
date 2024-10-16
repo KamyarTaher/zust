@@ -31,8 +31,6 @@ Check out this interactive example on CodeSandbox to see Zust in action:
 
 ## Installation
 
-Install `zust` using npm or bun:
-
 To install `zust`, use one of the following commands:
 
 ```
@@ -168,12 +166,9 @@ const initialState = {
   settings: { theme: 'light', language: 'en' },
 };
 
-// Create a persist configuration
-const persistConfig = createPersistConfig('user', 'settings.theme');
-
 // Create the store with persistence
 const { useSelectors, setDeep } = createStore(initialState, {
-  persist: persistConfig,
+  persist: createPersistConfig('user', 'settings.theme'),
 });
 
 ```
