@@ -2,6 +2,7 @@
 import { render, act } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { createStore } from "../src/index";
+import React from "react";
 
 describe("Zust Integration", () => {
   test("useSelectors hook selects correct values", () => {
