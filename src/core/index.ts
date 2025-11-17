@@ -1,181 +1,101 @@
-import { create } from "zustand";
-import { useShallow } from "zustand/react/shallow";
+/**
+ * Core Store - Now using standalone engine (no Zustand!)
+ * This file maintains API compatibility while using our enhanced engine
+ */
+
 import {
-  getNestedValue,
-  setNestedValue,
-  getLastPart,
-  combineMiddlewares,
-  stableHash,
-  deepMerge,
-} from "./utils";
-import { createPersister } from "./persistConfig";
-import { loggingMiddleware } from "../middleware";
-import { devToolsPlugin } from "../plugins";
+  createStore as createStandaloneStore,
+  batch,
+  type StoreCreationResult as EngineResult,
+  type StoreOptions as EngineOptions,
+  type Middleware,
+  type Plugin,
+} from "../engine";
+
+// Re-export types from types/index
 import type {
-  StoreOptions,
   Store,
-  StoreCreationResult,
-  SelectorConfig,
+  StoreOptions,
   Path,
   PathValue,
   SetStateAction,
+  SelectorConfig,
 } from "../types";
 
 /**
- * Creates a generic store with advanced features like nested state management,
- * middleware support, computed values, plugins, and state persistence.
+ * Convert our enhanced options to engine options
+ */
+function convertOptions<T extends object>(
+  options: StoreOptions<T>
+): EngineOptions<T> {
+  return {
+    persist: options.persist,
+    logging: options.logging,
+    middleware: options.middleware,
+    computed: options.computedValues, // Map computedValues -> computed
+    plugins: options.plugins,
+    prefix: options.prefix,
+    history: options.history, // Pass through history config
+  };
+}
+
+/**
+ * Store creation result with our type system
+ */
+export interface StoreCreationResult<T> {
+  useStore: () => Store<T>;
+  useSelectors: <S extends SelectorConfig<T>[]>(
+    ...selectors: S
+  ) => Record<string, unknown>;
+  getState: () => T;
+  setState: (partial: Partial<T> | ((state: T) => Partial<T>), replace?: boolean) => void;
+  setDeep: <P extends Path<T>>(
+    path: P,
+    action: SetStateAction<PathValue<T, P>>
+  ) => void;
+  subscribe: (listener: (state: T, prevState: T) => void) => () => void;
+  subscribePath: (
+    path: string,
+    callback: (newValue: unknown, oldValue: unknown, fullState: T) => void
+  ) => () => void;
+  destroy: () => void;
+  history?: import("../engine").HistoryAPI;
+}
+
+/**
+ * Creates a store using the standalone engine
  *
- * @param initialState - The initial state of the store.
- * @param options - Configuration options for the store.
- * @returns The created store and utility functions.
+ * @param initialState - The initial state
+ * @param options - Store configuration options
+ * @returns Store creation result with hooks and utilities
  */
 export function createStore<T extends object>(
   initialState: T,
   options: StoreOptions<T> = {}
 ): StoreCreationResult<T> {
-  const {
-    persist: persistOption = false,
-    logging = false,
-    middleware = [],
-    computedValues = {},
-    plugins = [],
-    prefix = "",
-  } = options;
+  // Convert options format
+  const engineOptions = convertOptions(options);
 
-  // Create a stable hash based on the structure and initial values of the state
-  const stateHash = stableHash(initialState);
-  // Use the options object's hash as an additional identifier
-  const optionsHash = stableHash(options);
-  // Combine hashes to create a unique but stable storage name
-  const storageName = `store-${prefix}-${stateHash}-${optionsHash}`;
+  // Create store using standalone engine
+  const engine = createStandaloneStore(initialState, engineOptions);
 
-  const storeCreator = (set: any, get: any, api: any) => {
-    const history = { past: [] as T[], future: [] as T[] };
-    const listeners: ((state: T, prevState: T) => void)[] = [];
-
-    const finalMiddleware = combineMiddlewares(middleware);
-
-    /**
-     * Sets a nested state value.
-     *
-     * @param path - Path to the nested value.
-     * @param action - The new value or a function to produce the new value.
-     */
-    const setDeep = <P extends Path<T>>(
+  // Wrap and return with our type system
+  return {
+    useStore: engine.useStore as () => Store<T>,
+    useSelectors: engine.useSelectors,
+    getState: engine.getState,
+    setState: engine.setState,
+    setDeep: engine.setDeep as <P extends Path<T>>(
       path: P,
       action: SetStateAction<PathValue<T, P>>
-    ) => {
-      set((state: T) => {
-        const newState = { ...state };
-        const value =
-          typeof action === "function"
-            ? (action as Function)(getNestedValue(state, path))
-            : action;
-        setNestedValue(newState, path, value);
-
-        // Save state history for undo/redo functionality
-        history.past.push(JSON.parse(JSON.stringify(state)));
-        history.future = [];
-
-        const finalState = finalMiddleware((s) => s)(newState);
-
-        // Notify listeners about the state change
-        listeners.forEach((listener) => listener(finalState, state));
-        return finalState;
-      });
-    };
-
-    // Merge initial state with any persisted state
-    const persistedState = api.getState();
-    const mergedInitialState = deepMerge(initialState, persistedState);
-
-    const store: Store<T> = {
-      ...mergedInitialState,
-      setDeep,
-      dispatch: async (action) => {
-        const state = get();
-        await action(state, setDeep);
-      },
-      subscribe: (listener) => {
-        listeners.push(listener);
-        return () => {
-          const index = listeners.indexOf(listener);
-          if (index > -1) {
-            listeners.splice(index, 1);
-          }
-        };
-      },
-    };
-
-    // Define computed values as properties on the store
-    Object.entries(computedValues).forEach(([key, selector]) => {
-      Object.defineProperty(store, key, {
-        get: () => selector(get()),
-        enumerable: true,
-      });
-    });
-
-    // Initialize plugins and add their middlewares
-    plugins.forEach((plugin) => {
-      if (plugin.onInit) {
-        plugin.onInit(store);
-      }
-      if (plugin.middleware) {
-        middleware.push(plugin.middleware);
-      }
-    });
-
-    return store;
-  };
-
-  let finalStoreCreator: any = storeCreator;
-
-  // Add logging middleware if enabled
-  if (logging) {
-    finalStoreCreator = loggingMiddleware(finalStoreCreator);
-  }
-
-  // Add persistence middleware if enabled
-  if (persistOption) {
-    finalStoreCreator = createPersister(
-      finalStoreCreator,
-      persistOption,
-      storageName
-    );
-  }
-
-  const useStore = create<Store<T>>(finalStoreCreator);
-
-  /**
-   * Custom hook to use selected parts of the state.
-   *
-   * @param selectors - List of selectors in the format "path:alias".
-   * @returns The selected state values.
-   */
-  function useSelectors<S extends SelectorConfig<T>[]>(...selectors: S) {
-    return useStore(
-      useShallow((state) => {
-        return selectors.reduce((acc, selector) => {
-          const [path, alias] = (selector as string).split(":") as [
-            string,
-            string | undefined
-          ];
-          const key = alias || getLastPart(path);
-          (acc as any)[key] = getNestedValue(state, path);
-          return acc;
-        }, {} as any);
-      })
-    );
-  }
-
-  // Initialize dev tools plugin
-  devToolsPlugin(useStore, storageName, initialState);
-
-  return {
-    useSelectors,
-    setDeep: useStore.getState().setDeep,
-    subscribe: useStore.getState().subscribe,
-    getState: useStore.getState,
-    useStore,
+    ) => void,
+    subscribe: engine.subscribe,
+    subscribePath: engine.subscribePath,
+    destroy: engine.destroy,
+    history: engine.history,
   };
 }
+
+// Re-export batch utility
+export { batch };
+export type { Middleware, Plugin };

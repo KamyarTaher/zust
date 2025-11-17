@@ -1,1 +1,1 @@
-export { loggingMiddleware } from "./loggingMiddleware";
+export { loggingMiddleware, LogLevel, type LoggingOptions } from "./loggingMiddleware";

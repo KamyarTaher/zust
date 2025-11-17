@@ -89,6 +89,15 @@ export type PersistConfig<T> = {
 };
 
 /**
+ * History configuration options
+ */
+export type HistoryConfig = {
+    enabled: boolean;
+    maxSize?: number;
+    debounceMs?: number;
+};
+
+/**
  * Options for creating a store, including persistence, logging, middleware, etc.
  */
 export type StoreOptions<T extends object> = {
@@ -98,6 +107,7 @@ export type StoreOptions<T extends object> = {
     computedValues?: { [key: string]: (state: T) => any };
     plugins?: Plugin<T>[];
     prefix?: string;
+    history?: HistoryConfig;
 };
 
 /**
@@ -112,10 +122,26 @@ export type AsyncAction<T> = (
 ) => Promise<void>;
 
 /**
+ * History API interface
+ */
+export interface HistoryAPI {
+    undo: () => void;
+    redo: () => void;
+    canUndo: () => boolean;
+    canRedo: () => boolean;
+    clear: () => void;
+    jump: (index: number) => void;
+}
+
+/**
  * The main store type that includes state management functions:
  * - `setDeep` for deep updates,
  * - `dispatch` for asynchronous actions,
- * - `subscribe` for state change listeners.
+ * - `subscribe` for state change listeners,
+ * - `subscribePath` for path-specific listeners,
+ * - `deleteDeep` for deleting nested properties,
+ * - `hasPath` for checking path existence,
+ * - `history` for time-travel debugging (optional).
  */
 export type Store<T> = T & {
     setDeep: <P extends Path<T>>(
@@ -124,6 +150,13 @@ export type Store<T> = T & {
     ) => void;
     dispatch: (action: AsyncAction<T>) => Promise<void>;
     subscribe: (listener: (state: T, prevState: T) => void) => () => void;
+    subscribePath: (
+        path: string,
+        callback: (newValue: unknown, oldValue: unknown, fullState: T) => void
+    ) => () => void;
+    deleteDeep: (path: string) => boolean;
+    hasPath: (path: string) => boolean;
+    history?: HistoryAPI;
 };
 
 /**

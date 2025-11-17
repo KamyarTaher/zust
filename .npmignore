@@ -1,4 +1,52 @@
-# Exclude unnecessary files
+# Source files
 src/
+tests/
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+
+# Configuration files
+tsconfig.json
+tsconfig.build.json
+rollup.config.js
+jest.config.js
+jest.setup.js
+.eslintrc.json
+.prettierrc
+.prettierignore
+.all-contributorsrc
+
+# Documentation
+*.md
+!README.md
+
+# Git files
+.git
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies
 node_modules/
-test/
+
+# Build artifacts
+coverage/
+.nyc_output/
+*.log
+.cache/
+
+# Misc
+*.tgz
+.env*
+!.env.example
