@@ -18,6 +18,7 @@ import {
   type ComputedValues,
   type ComputedConfig,
 } from "./computedEngine";
+import { createPersister } from "../core/persistConfig";
 
 /**
  * Middleware function type
@@ -165,10 +166,35 @@ export function createStore<T extends object>(
     computed = {},
     plugins = [],
     history: historyConfig,
+    persist,
+    prefix = "zust",
   } = options;
 
-  // Create core store engine
+  // Create persister if persistence is enabled
+  const persister = persist
+    ? createPersister<T>(prefix, {})
+    : null;
+
+  // Debounce timer for persistence
+  let persistTimer: ReturnType<typeof setTimeout> | null = null;
+  const PERSIST_DEBOUNCE_MS = 100;
+
+  // Create core store engine with initial state
   const engine = createStoreEngine<T>(initialState);
+
+  // Load persisted state asynchronously and hydrate
+  if (persister) {
+    persister.load().then((persistedState) => {
+      if (persistedState && Object.keys(persistedState).length > 0) {
+        // Merge persisted state with current state
+        const currentState = engine.getState();
+        const hydratedState = { ...currentState, ...persistedState };
+        engine.setState(hydratedState as Partial<T>, true);
+      }
+    }).catch((error) => {
+      console.error("[Zust] Failed to load persisted state:", error);
+    });
+  }
 
   // Create computed engine
   const computedEngine = new ComputedEngine(engine.getState, computed);
@@ -211,6 +237,18 @@ export function createStore<T extends object>(
 
       // Update state (pass the whole state with replace=true to avoid shallow merge issues)
       engine.setState(finalState as Partial<T>, true);
+
+      // Persist state with debouncing if enabled
+      if (persister) {
+        if (persistTimer) {
+          clearTimeout(persistTimer);
+        }
+        persistTimer = setTimeout(() => {
+          persister.save(finalState, persist).catch((error) => {
+            console.error("[Zust] Failed to persist state:", error);
+          });
+        }, PERSIST_DEBOUNCE_MS);
+      }
 
       // Capture history
       if (historyManager) {
@@ -345,6 +383,11 @@ export function createStore<T extends object>(
 
   // Cleanup function
   const destroy = (): void => {
+    // Clear any pending persist timer
+    if (persistTimer) {
+      clearTimeout(persistTimer);
+    }
+
     engine.destroy();
     computedEngine.destroy();
     if (historyManager) {

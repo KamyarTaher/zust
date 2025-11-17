@@ -74,9 +74,12 @@ function getStorage(
     return customStorage;
   }
 
-  // Check if we're in a browser environment
-  if (typeof window === "undefined") {
-    // Return a no-op storage for server-side rendering
+  // Check if localStorage/sessionStorage is available (works in both browser and test environments)
+  const hasLocalStorage = typeof localStorage !== "undefined";
+  const hasSessionStorage = typeof sessionStorage !== "undefined";
+
+  if (!hasLocalStorage && !hasSessionStorage) {
+    // Return a no-op storage for environments without storage
     return {
       getItem: () => null,
       setItem: () => {},
@@ -86,11 +89,23 @@ function getStorage(
 
   switch (storageType) {
     case StorageType.LOCAL:
-      return localStorage;
+      return hasLocalStorage ? localStorage : {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      };
     case StorageType.SESSION:
-      return sessionStorage;
+      return hasSessionStorage ? sessionStorage : {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      };
     default:
-      return localStorage;
+      return hasLocalStorage ? localStorage : {
+        getItem: () => null,
+        setItem: () => {},
+        removeItem: () => {},
+      };
   }
 }
 
@@ -122,53 +137,99 @@ export function createPersister<T extends object>(
   const storage = getStorage(storageType, customStorage);
 
   /**
-   * Save state to storage
+   * Save state to storage (saves each field individually)
    */
   const save = async (state: T, config?: boolean | PersistConfig<T>): Promise<void> => {
     try {
-      let dataToSave: Partial<T>;
+      let fieldsToSave: string[];
 
       if (typeof config === "object") {
         // Partial persistence based on config
-        dataToSave = {};
-        for (const key of Object.keys(config)) {
-          if (config[key as Path<T>]) {
-            dataToSave[key as keyof T] = state[key as keyof T];
-          }
-        }
+        fieldsToSave = Object.keys(config).filter(key => config[key as Path<T>]);
+      } else if (config === true) {
+        // Save all top-level fields (excluding functions/methods)
+        fieldsToSave = Object.keys(state).filter(
+          key => typeof state[key as keyof T] !== 'function'
+        );
       } else {
-        // Save entire state
-        dataToSave = state;
+        // Persistence disabled
+        return;
       }
 
-      const serialized = JSON.stringify(dataToSave);
-      await storage.setItem(storageName, serialized);
+      // Save each field individually with key format: storageName-fieldName
+      for (const field of fieldsToSave) {
+        const key = `${storageName}-${field}`;
+        const value = state[field as keyof T];
+        const serialized = JSON.stringify(value);
+        await storage.setItem(key, serialized);
+      }
     } catch (error) {
       onError(error as Error);
+      throw error;
     }
   };
 
   /**
-   * Load state from storage
+   * Load state from storage (loads all fields individually)
    */
   const load = async (): Promise<Partial<T> | null> => {
     try {
-      const item = await storage.getItem(storageName);
-      if (!item) return null;
+      const result: Partial<T> = {};
+      let hasAnyData = false;
 
-      return JSON.parse(item) as Partial<T>;
+      // Iterate through storage keys to find ones matching our prefix
+      const prefix = `${storageName}-`;
+
+      // Check if storage has a length property (like localStorage)
+      if ('length' in storage && 'key' in storage) {
+        const storageWithKeys = storage as StateStorage & { length: number; key: (index: number) => string | null };
+        for (let i = 0; i < storageWithKeys.length; i++) {
+          const key = storageWithKeys.key(i);
+          if (key?.startsWith(prefix)) {
+            const fieldName = key.substring(prefix.length);
+            const value = await storage.getItem(key);
+            if (value !== null) {
+              try {
+                result[fieldName as keyof T] = JSON.parse(value);
+                hasAnyData = true;
+              } catch (parseError) {
+                onError(parseError as Error);
+              }
+            }
+          }
+        }
+      }
+
+      return hasAnyData ? result : null;
     } catch (error) {
       onError(error as Error);
-      return null;
+      throw error;
     }
   };
 
   /**
-   * Clear stored state
+   * Clear stored state (clears all fields with prefix)
    */
   const clear = async (): Promise<void> => {
     try {
-      await storage.removeItem(storageName);
+      const prefix = `${storageName}-`;
+      const keysToRemove: string[] = [];
+
+      // Collect keys to remove
+      if ('length' in storage && 'key' in storage) {
+        const storageWithKeys = storage as StateStorage & { length: number; key: (index: number) => string | null };
+        for (let i = 0; i < storageWithKeys.length; i++) {
+          const key = storageWithKeys.key(i);
+          if (key?.startsWith(prefix)) {
+            keysToRemove.push(key);
+          }
+        }
+      }
+
+      // Remove all matching keys
+      for (const key of keysToRemove) {
+        await storage.removeItem(key);
+      }
     } catch (error) {
       onError(error as Error);
     }

@@ -2,7 +2,7 @@
 
 import { useSelectors, setDeep, history, fetchPosts } from "@/lib/store";
 import { batch, createStore } from "zust";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const { theme } = useSelectors("theme");
@@ -322,6 +322,11 @@ const persistStore = createStore(
 function PersistenceDemo() {
   const { useSelectors, setDeep } = persistStore;
   const { notes, savedAt } = useSelectors("notes", "savedAt");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <div className="card">
@@ -343,8 +348,9 @@ function PersistenceDemo() {
 
       <div
         style={{ padding: "0.75rem", background: "#f8f9fa", borderRadius: "8px", fontSize: "0.875rem" }}
+        suppressHydrationWarning
       >
-        {savedAt ? (
+        {mounted && savedAt ? (
           <>
             <strong>Last saved:</strong> {savedAt}
           </>
