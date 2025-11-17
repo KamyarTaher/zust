@@ -12,7 +12,7 @@
     "next": "^15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "zust": "^1.0.3"
+    "zust": "^1.0.4"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
