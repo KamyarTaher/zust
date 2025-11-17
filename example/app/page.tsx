@@ -1,7 +1,7 @@
 "use client";
 
-import { useSelectors, setDeep, history, fetchPosts, getState } from "@/lib/store";
-import { batch } from "zust";
+import { useSelectors, setDeep, history, fetchPosts } from "@/lib/store";
+import { batch, createStore } from "zust";
 import { useEffect } from "react";
 
 export default function Home() {
@@ -46,25 +46,16 @@ export default function Home() {
 
         {/* Shopping Cart with Batching */}
         <ShoppingCartDemo />
+
+        {/* Persistence Demo */}
+        <PersistenceDemo />
       </div>
     </div>
   );
 }
 
 function BasicStateDemo() {
-  const selectedValues = useSelectors("user.name", "user.email", "user.age");
-  const { name, email, age } = selectedValues;
-
-  // Debug logging
-  console.log("=== BasicStateDemo Debug ===");
-  console.log("selectedValues:", selectedValues);
-  console.log("name:", name, "type:", typeof name);
-  console.log("email:", email, "type:", typeof email);
-  console.log("age:", age, "type:", typeof age);
-
-  const state = getState();
-  console.log("Full state:", state);
-  console.log("state.user:", state.user);
+  const { name, email, age } = useSelectors("user.name", "user.email", "user.age");
 
   return (
     <div className="card">
@@ -75,32 +66,19 @@ function BasicStateDemo() {
         <input
           type="text"
           value={name || ""}
-          onChange={(e) => {
-            console.log("Setting user.name to:", e.target.value);
-            setDeep("user.name", e.target.value);
-            console.log("After setDeep, state.user:", getState().user);
-          }}
+          onChange={(e) => setDeep("user.name", e.target.value)}
           placeholder="Name"
         />
         <input
           type="email"
           value={email || ""}
-          onChange={(e) => {
-            console.log("Setting user.email to:", e.target.value);
-            setDeep("user.email", e.target.value);
-            console.log("After setDeep, state.user:", getState().user);
-          }}
+          onChange={(e) => setDeep("user.email", e.target.value)}
           placeholder="Email"
         />
         <input
           type="number"
           value={age ?? ""}
-          onChange={(e) => {
-            const newAge = parseInt(e.target.value) || 0;
-            console.log("Setting user.age to:", newAge);
-            setDeep("user.age", newAge);
-            console.log("After setDeep, state.user:", getState().user);
-          }}
+          onChange={(e) => setDeep("user.age", parseInt(e.target.value) || 0)}
           placeholder="Age"
         />
       </div>
@@ -198,17 +176,42 @@ function TimeTravelDemo() {
 }
 
 function ComputedValuesDemo() {
-  const state = useSelectors("fullName", "completedTodos", "activeTodos", "todos");
+  const state = useSelectors("fullName", "completedTodos", "activeTodos", "user.name", "user.age");
   const fullName = (state as any).fullName;
   const completedTodos = (state as any).completedTodos;
   const activeTodos = (state as any).activeTodos;
+  const name = (state as any).name;
+  const age = (state as any).age;
 
   return (
     <div className="card">
-      <h2>Computed Values</h2>
+      <h2>Computed Values (Interactive)</h2>
       <p style={{ marginBottom: "1rem", color: "#666" }}>
-        Cached computed properties with dependency tracking
+        Cached computed properties with dependency tracking. Change name/age to see fullName update!
       </p>
+
+      <div style={{ marginBottom: "1rem" }}>
+        <input
+          type="text"
+          value={name || ""}
+          onChange={(e) => setDeep("user.name", e.target.value)}
+          placeholder="Name"
+          style={{ marginBottom: "0.5rem" }}
+        />
+        <input
+          type="number"
+          value={age ?? ""}
+          onChange={(e) => setDeep("user.age", parseInt(e.target.value) || 0)}
+          placeholder="Age"
+        />
+      </div>
+
+      <div
+        style={{ marginBottom: "1rem", padding: "1rem", background: "#f8f9fa", borderRadius: "8px" }}
+      >
+        <strong>Computed Full Name:</strong>
+        <div style={{ fontSize: "1.25rem", color: "#667eea", marginTop: "0.5rem" }}>{fullName}</div>
+      </div>
 
       <div className="stats">
         <div className="stat-box">
@@ -219,13 +222,6 @@ function ComputedValuesDemo() {
           <div className="label">Active</div>
           <div className="value">{activeTodos}</div>
         </div>
-      </div>
-
-      <div
-        style={{ marginTop: "1rem", padding: "1rem", background: "#f8f9fa", borderRadius: "8px" }}
-      >
-        <strong>Computed Full Name:</strong>
-        <div style={{ fontSize: "1.25rem", color: "#667eea", marginTop: "0.5rem" }}>{fullName}</div>
       </div>
     </div>
   );
@@ -307,6 +303,69 @@ function ShoppingCartDemo() {
           <div className="value">${cartTotal}</div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Separate persistence store to demonstrate the feature
+const persistStore = createStore(
+  {
+    notes: "",
+    savedAt: null as string | null,
+  },
+  {
+    persist: true,
+    prefix: "zust-persist-demo",
+  }
+);
+
+function PersistenceDemo() {
+  const { useSelectors, setDeep } = persistStore;
+  const { notes, savedAt } = useSelectors("notes", "savedAt");
+
+  return (
+    <div className="card">
+      <h2>Persistence (localStorage)</h2>
+      <p style={{ marginBottom: "1rem", color: "#666" }}>
+        Data persists across page reloads. Try refreshing the page!
+      </p>
+
+      <textarea
+        value={notes || ""}
+        onChange={(e) => {
+          setDeep("notes", e.target.value);
+          setDeep("savedAt", new Date().toLocaleTimeString());
+        }}
+        placeholder="Type your notes here... (auto-saved to localStorage)"
+        rows={6}
+        style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem" }}
+      />
+
+      <div
+        style={{ padding: "0.75rem", background: "#f8f9fa", borderRadius: "8px", fontSize: "0.875rem" }}
+      >
+        {savedAt ? (
+          <>
+            <strong>Last saved:</strong> {savedAt}
+          </>
+        ) : (
+          <span style={{ color: "#999" }}>Type something to save...</span>
+        )}
+      </div>
+
+      <button
+        onClick={() => {
+          if (typeof window !== "undefined") {
+            localStorage.removeItem("zust-persist-demo-notes");
+            localStorage.removeItem("zust-persist-demo-savedAt");
+            setDeep("notes", "");
+            setDeep("savedAt", null);
+          }
+        }}
+        style={{ marginTop: "1rem", width: "100%", opacity: 0.7 }}
+      >
+        Clear Saved Data
+      </button>
     </div>
   );
 }
