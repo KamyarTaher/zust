@@ -19,6 +19,7 @@ import type {
   PathValue,
   SetStateAction,
   SelectorConfig,
+  SelectorResult,
 } from "../types";
 
 /**
@@ -45,7 +46,7 @@ export interface StoreCreationResult<T> {
   useStore: () => Store<T>;
   useSelectors: <S extends SelectorConfig<T>[]>(
     ...selectors: S
-  ) => Record<string, unknown>;
+  ) => SelectorResult<T, S>;
   getState: () => Store<T>;
   setState: (partial: Partial<T> | ((state: T) => Partial<T>), replace?: boolean) => void;
   setDeep: <P extends Path<T>>(
@@ -81,7 +82,9 @@ export function createStore<T extends object>(
   // Wrap and return with our type system
   return {
     useStore: engine.useStore as () => Store<T>,
-    useSelectors: engine.useSelectors,
+    useSelectors: engine.useSelectors as <S extends SelectorConfig<T>[]>(
+      ...selectors: S
+    ) => SelectorResult<T, S>,
     getState: engine.getState as () => Store<T>,
     setState: engine.setState,
     setDeep: engine.setDeep as <P extends Path<T>>(

@@ -53,13 +53,10 @@ export default function Home() {
 
 function BasicStateDemo() {
   const { name, email, age } = useSelectors("user.name", "user.email", "user.age");
-
   return (
     <div className="card">
       <h2>Basic State Management</h2>
-      <p style={{ marginBottom: "1rem", color: "#666" }}>
-        Update nested state with dot notation
-      </p>
+      <p style={{ marginBottom: "1rem", color: "#666" }}>Update nested state with dot notation</p>
 
       <div>
         <input
@@ -82,7 +79,9 @@ function BasicStateDemo() {
         />
       </div>
 
-      <div style={{ marginTop: "1rem", padding: "1rem", background: "#f8f9fa", borderRadius: "8px" }}>
+      <div
+        style={{ marginTop: "1rem", padding: "1rem", background: "#f8f9fa", borderRadius: "8px" }}
+      >
         <strong>Live Values:</strong>
         <div>Name: {name}</div>
         <div>Email: {email}</div>
@@ -94,6 +93,7 @@ function BasicStateDemo() {
 
 function ArrayPathsDemo() {
   const { todos } = useSelectors("todos");
+  const todosList = (todos as any[]) || [];
 
   return (
     <div className="card">
@@ -102,21 +102,22 @@ function ArrayPathsDemo() {
         Access array items with index notation: todos.0.done
       </p>
 
-      {todos?.map((todo, index) => (
-        <div key={todo.id} className={`todo-item ${todo.done ? "completed" : ""}`}>
-          <input
-            type="checkbox"
-            checked={todo.done}
-            onChange={() => setDeep(`todos.${index}.done`, !todo.done)}
-          />
-          <span style={{ flex: 1 }}>{todo.text}</span>
-        </div>
-      ))}
+      {Array.isArray(todosList) &&
+        todosList.map((todo, index) => (
+          <div key={todo.id} className={`todo-item ${todo.done ? "completed" : ""}`}>
+            <input
+              type="checkbox"
+              checked={todo.done}
+              onChange={() => setDeep(`todos.${index}.done`, !todo.done)}
+            />
+            <span style={{ flex: 1 }}>{todo.text}</span>
+          </div>
+        ))}
 
       <button
         onClick={() =>
           setDeep("todos", (prev: any[]) => [
-            ...prev,
+            ...(Array.isArray(prev) ? prev : []),
             { id: Date.now(), text: "New Task", done: false },
           ])
         }
@@ -143,33 +144,19 @@ function TimeTravelDemo() {
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
-        <button
-          onClick={() => setDeep("counter", (c: number) => c + 1)}
-          style={{ flex: 1 }}
-        >
+        <button onClick={() => setDeep("counter", (c: number) => c + 1)} style={{ flex: 1 }}>
           Increment
         </button>
-        <button
-          onClick={() => setDeep("counter", (c: number) => c - 1)}
-          style={{ flex: 1 }}
-        >
+        <button onClick={() => setDeep("counter", (c: number) => c - 1)} style={{ flex: 1 }}>
           Decrement
         </button>
       </div>
 
       <div style={{ display: "flex", gap: "0.5rem" }}>
-        <button
-          onClick={() => history?.undo()}
-          disabled={!history?.canUndo()}
-          style={{ flex: 1 }}
-        >
+        <button onClick={() => history?.undo()} disabled={!history?.canUndo()} style={{ flex: 1 }}>
           ⏪ Undo
         </button>
-        <button
-          onClick={() => history?.redo()}
-          disabled={!history?.canRedo()}
-          style={{ flex: 1 }}
-        >
+        <button onClick={() => history?.redo()} disabled={!history?.canRedo()} style={{ flex: 1 }}>
           Redo ⏩
         </button>
       </div>
@@ -208,11 +195,11 @@ function ComputedValuesDemo() {
         </div>
       </div>
 
-      <div style={{ marginTop: "1rem", padding: "1rem", background: "#f8f9fa", borderRadius: "8px" }}>
+      <div
+        style={{ marginTop: "1rem", padding: "1rem", background: "#f8f9fa", borderRadius: "8px" }}
+      >
         <strong>Computed Full Name:</strong>
-        <div style={{ fontSize: "1.25rem", color: "#667eea", marginTop: "0.5rem" }}>
-          {fullName}
-        </div>
+        <div style={{ fontSize: "1.25rem", color: "#667eea", marginTop: "0.5rem" }}>{fullName}</div>
       </div>
     </div>
   );
@@ -220,15 +207,18 @@ function ComputedValuesDemo() {
 
 function AsyncDispatchDemo() {
   const { posts, loading, error } = useSelectors("posts", "loading", "error");
+  const postsList = (posts as any[]) || [];
 
   return (
     <div className="card">
       <h2>Async Dispatch</h2>
-      <p style={{ marginBottom: "1rem", color: "#666" }}>
-        First-class async/await support
-      </p>
+      <p style={{ marginBottom: "1rem", color: "#666" }}>First-class async/await support</p>
 
-      <button onClick={fetchPosts} disabled={loading} style={{ width: "100%", marginBottom: "1rem" }}>
+      <button
+        onClick={fetchPosts}
+        disabled={loading}
+        style={{ width: "100%", marginBottom: "1rem" }}
+      >
         {loading ? "Loading..." : "Fetch Posts"}
       </button>
 
@@ -236,21 +226,22 @@ function AsyncDispatchDemo() {
 
       {loading && <div className="loading">Fetching posts...</div>}
 
-      {posts?.slice(0, 3).map((post) => (
-        <div key={post.id} className="post">
-          <h3>{post.title}</h3>
-          <p>{post.body.substring(0, 100)}...</p>
-        </div>
-      ))}
+      {Array.isArray(postsList) &&
+        postsList.slice(0, 3).map((post) => (
+          <div key={post.id} className="post">
+            <h3>{post.title}</h3>
+            <p>{post.body.substring(0, 100)}...</p>
+          </div>
+        ))}
     </div>
   );
 }
 
 function ShoppingCartDemo() {
   const state = useSelectors("cart", "cartTotal", "cartItemCount");
-  const cart = state.cart;
-  const cartTotal = (state as any).cartTotal;
-  const cartItemCount = (state as any).cartItemCount;
+  const cart = (state.cart as any[]) || [];
+  const cartTotal = (state as any).cartTotal || 0;
+  const cartItemCount = (state as any).cartItemCount || 0;
 
   const updateQuantity = (index: number, delta: number) => {
     batch(() => {
@@ -261,25 +252,24 @@ function ShoppingCartDemo() {
   return (
     <div className="card">
       <h2>Shopping Cart + Batching</h2>
-      <p style={{ marginBottom: "1rem", color: "#666" }}>
-        Batch updates to minimize re-renders
-      </p>
+      <p style={{ marginBottom: "1rem", color: "#666" }}>Batch updates to minimize re-renders</p>
 
-      {cart?.map((item, index) => (
-        <div key={item.id} className="cart-item">
-          <div>
-            <strong>{item.name}</strong>
-            <div style={{ fontSize: "0.875rem", color: "#666" }}>
-              ${item.price} × {item.quantity}
+      {Array.isArray(cart) &&
+        cart.map((item, index) => (
+          <div key={item.id} className="cart-item">
+            <div>
+              <strong>{item.name}</strong>
+              <div style={{ fontSize: "0.875rem", color: "#666" }}>
+                ${item.price} × {item.quantity}
+              </div>
+            </div>
+            <div className="cart-controls">
+              <button onClick={() => updateQuantity(index, -1)}>-</button>
+              <span style={{ minWidth: "30px", textAlign: "center" }}>{item.quantity}</span>
+              <button onClick={() => updateQuantity(index, 1)}>+</button>
             </div>
           </div>
-          <div className="cart-controls">
-            <button onClick={() => updateQuantity(index, -1)}>-</button>
-            <span style={{ minWidth: "30px", textAlign: "center" }}>{item.quantity}</span>
-            <button onClick={() => updateQuantity(index, 1)}>+</button>
-          </div>
-        </div>
-      ))}
+        ))}
 
       <div className="stats" style={{ marginTop: "1rem" }}>
         <div className="stat-box">

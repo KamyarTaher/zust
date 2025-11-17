@@ -3,6 +3,16 @@
  */
 import { createStore } from "zust";
 
+// Clear any corrupted localStorage data from previous versions
+if (typeof window !== "undefined") {
+  // Clear zust-demo prefixed items
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith("zust-demo")) {
+      localStorage.removeItem(key);
+    }
+  });
+}
+
 // Define the state type
 export interface AppState {
   // Basic state
@@ -108,9 +118,9 @@ export const store = createStore(initialState, {
     },
   },
 
-  // Enable persistence
-  persist: true,
-  prefix: "zust-demo",
+  // Persistence disabled for demo to avoid localStorage conflicts
+  // persist: true,
+  // prefix: "zust-demo",
 });
 
 // Export hooks and methods
