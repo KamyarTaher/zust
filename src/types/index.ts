@@ -21,16 +21,18 @@ export type StoreHook<T> = () => {
 
 /**
  * A type that computes all possible nested paths for an object type `T`.
- * This includes paths like "key1.key2" for nested objects.
+ * This includes paths like "key1.key2" for nested objects and array indices.
  */
 export type NestedPaths<T> = T extends Primitive
     ? never
-    : T extends unknown[]
-    ? never
+    : T extends readonly (infer U)[]
+    ? `${number}` | `${number}.${NestedPaths<U>}`
     : {
         [K in keyof T]: K extends string
         ? T[K] extends Primitive
         ? K
+        : T[K] extends readonly (infer U)[]
+        ? K | `${K}.${number}` | `${K}.${number}.${NestedPaths<U>}`
         : `${K}` | `${K}.${NestedPaths<T[K]>}`
         : never;
     }[keyof T];
@@ -44,6 +46,7 @@ export type Path<T> = NestedPaths<T>;
 /**
  * A type that represents the value at a given path `P` in an object type `T`.
  * Uses template literal types to resolve deeply nested values.
+ * Supports array indices like "todos.0.done" or "todos.${number}.done".
  */
 export type PathValue<
     T,
@@ -53,9 +56,19 @@ export type PathValue<
     ? Rest extends Path<T[K]>
     ? PathValue<T[K], Rest>
     : never
+    : K extends `${number}`
+    ? T extends readonly (infer U)[]
+    ? Rest extends Path<U>
+    ? PathValue<U, Rest>
+    : never
+    : never
     : never
     : P extends keyof T
     ? T[P]
+    : P extends `${number}`
+    ? T extends readonly (infer U)[]
+    ? U
+    : never
     : never;
 
 /**
@@ -98,13 +111,30 @@ export type HistoryConfig = {
 };
 
 /**
+ * Computed value configuration
+ */
+export interface ComputedConfig<T, R = unknown> {
+    /** Computation function */
+    compute: (state: T) => R;
+    /** Dependencies (paths) that trigger recomputation */
+    deps?: string[];
+    /** Whether to cache the result (default: true) */
+    cache?: boolean;
+}
+
+/**
+ * Computed values can be either a simple function or an extended config
+ */
+export type ComputedValues<T> = Record<string, ComputedConfig<T, unknown> | ((state: T) => unknown)>;
+
+/**
  * Options for creating a store, including persistence, logging, middleware, etc.
  */
 export type StoreOptions<T extends object> = {
     persist?: boolean | PersistConfig<T>;
     logging?: boolean;
     middleware?: Middleware<T>[];
-    computedValues?: { [key: string]: (state: T) => unknown };
+    computedValues?: ComputedValues<T>;
     plugins?: Plugin<T>[];
     prefix?: string;
     history?: HistoryConfig;
@@ -160,9 +190,13 @@ export type Store<T> = T & {
 };
 
 /**
- * Configuration for selectors, which can either be a path or a path with an alias.
+ * Configuration for selectors, which can be:
+ * - A state path (e.g., "user.name")
+ * - A state path with alias (e.g., "user.name:userName")
+ * - A computed value key (e.g., "fullName", "cartTotal")
+ * - An array path (e.g., "todos.0.done" or "cart.${number}.quantity")
  */
-export type SelectorConfig<T> = Path<T> | `${Path<T>}:${string}`;
+export type SelectorConfig<T> = Path<T> | `${Path<T>}:${string}` | string;
 
 /**
  * A type to extract the last part of a path string, used for aliases in selectors.
@@ -174,6 +208,7 @@ export type GetLastPart<T extends string> = T extends `${string}.${infer Last}`
 /**
  * The result type of applying selectors to the store state.
  * Maps selector paths to their resolved values.
+ * For computed values and dynamic array paths, the type is unknown since it can't be inferred statically.
  */
 export type SelectorResult<T, S extends SelectorConfig<T>[]> = {
     [K in S[number]as K extends `${string}:${infer A}`
@@ -181,10 +216,12 @@ export type SelectorResult<T, S extends SelectorConfig<T>[]> = {
     : K extends string
     ? GetLastPart<K>
     : never]: K extends `${infer P}:${string}`
+    ? P extends Path<T>
     ? PathValue<T, P & Path<T>>
+    : unknown
     : K extends Path<T>
     ? PathValue<T, K>
-    : never;
+    : unknown;
 };
 
 /**

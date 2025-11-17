@@ -5,7 +5,10 @@
       "Bash(npm run build:clean:*)",
       "Bash(npm publish)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm link)",
+      "Bash(npm link:*)"
     ],
     "deny": [],
     "ask": []
