@@ -138,7 +138,10 @@ export class HistoryManager<T extends object> {
       return;
     }
 
-    const snapshot = this.past.pop()!;
+    const snapshot = this.past.pop();
+    if (!snapshot) {
+      return;
+    }
     this.future.unshift({
       state: this.currentState,
       timestamp: Date.now(),
@@ -156,7 +159,10 @@ export class HistoryManager<T extends object> {
       return;
     }
 
-    const snapshot = this.future.shift()!;
+    const snapshot = this.future.shift();
+    if (!snapshot) {
+      return;
+    }
     this.past.push({
       state: this.currentState,
       timestamp: Date.now(),

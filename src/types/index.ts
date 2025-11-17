@@ -25,7 +25,7 @@ export type StoreHook<T> = () => {
  */
 export type NestedPaths<T> = T extends Primitive
     ? never
-    : T extends any[]
+    : T extends unknown[]
     ? never
     : {
         [K in keyof T]: K extends string
@@ -104,7 +104,7 @@ export type StoreOptions<T extends object> = {
     persist?: boolean | PersistConfig<T>;
     logging?: boolean;
     middleware?: Middleware<T>[];
-    computedValues?: { [key: string]: (state: T) => any };
+    computedValues?: { [key: string]: (state: T) => unknown };
     plugins?: Plugin<T>[];
     prefix?: string;
     history?: HistoryConfig;

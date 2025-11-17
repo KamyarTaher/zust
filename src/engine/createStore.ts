@@ -88,8 +88,8 @@ export function batch(callback: () => void): void {
     callback();
   } finally {
     if (!wasBatching) {
-      // Schedule flush for next tick
-      batchQueue.timeout = setTimeout(flushBatchQueue, 0);
+      // Flush immediately instead of using setTimeout to avoid timing issues
+      flushBatchQueue();
     }
   }
 }
@@ -271,7 +271,10 @@ export function createStoreEngine<T extends object>(
       pathListeners.set(path, new Set());
     }
 
-    const callbacks = pathListeners.get(path)!;
+    const callbacks = pathListeners.get(path);
+    if (!callbacks) {
+      throw new Error("[Zust] Failed to get path listeners");
+    }
     callbacks.add(callback);
 
     return () => {

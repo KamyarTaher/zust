@@ -26,9 +26,15 @@ Zust provides an intuitive API for managing complex application state with advan
 
 ## Live Example
 
-Check out this interactive example on CodeSandbox to see Zust in action:
+Check out the interactive example app in the `example/` folder to see all features in action. To run it:
 
-[Open CodeSandbox Example](https://codesandbox.io/p/sandbox/zust-playground-34lrrp)
+```bash
+cd example
+npm install  # or bun install
+npm run dev  # or bun dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000) to see the interactive demo.
 
 ## Table of Contents
 

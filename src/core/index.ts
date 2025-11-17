@@ -6,7 +6,6 @@
 import {
   createStore as createStandaloneStore,
   batch,
-  type StoreCreationResult as EngineResult,
   type StoreOptions as EngineOptions,
   type Middleware,
   type Plugin,
@@ -29,11 +28,11 @@ function convertOptions<T extends object>(
   options: StoreOptions<T>
 ): EngineOptions<T> {
   return {
-    persist: options.persist,
+    persist: options.persist as boolean | Record<string, boolean> | undefined,
     logging: options.logging,
     middleware: options.middleware,
     computed: options.computedValues, // Map computedValues -> computed
-    plugins: options.plugins,
+    plugins: options.plugins as import("../engine").Plugin<T>[] | undefined,
     prefix: options.prefix,
     history: options.history, // Pass through history config
   };
@@ -47,7 +46,7 @@ export interface StoreCreationResult<T> {
   useSelectors: <S extends SelectorConfig<T>[]>(
     ...selectors: S
   ) => Record<string, unknown>;
-  getState: () => T;
+  getState: () => Store<T>;
   setState: (partial: Partial<T> | ((state: T) => Partial<T>), replace?: boolean) => void;
   setDeep: <P extends Path<T>>(
     path: P,
@@ -83,7 +82,7 @@ export function createStore<T extends object>(
   return {
     useStore: engine.useStore as () => Store<T>,
     useSelectors: engine.useSelectors,
-    getState: engine.getState,
+    getState: engine.getState as () => Store<T>,
     setState: engine.setState,
     setDeep: engine.setDeep as <P extends Path<T>>(
       path: P,

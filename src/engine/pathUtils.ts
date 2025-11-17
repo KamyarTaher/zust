@@ -135,16 +135,26 @@ export function setNestedValue<T extends Record<string, unknown>>(
 
   // Handle single-segment paths (e.g., "counter")
   if (parts.length === 1) {
-    obj[parts[0]] = value;
+    const key = parts[0];
+    if (!key) {
+      throw new Error("[Zust] Invalid path segment");
+    }
+    (obj as Record<string, unknown>)[key] = value;
     return;
   }
 
-  const lastPart = parts.pop()!;
+  const lastPart = parts.pop();
+  if (!lastPart) {
+    throw new Error("[Zust] Invalid path: cannot extract last part");
+  }
   let current: Record<string, unknown> | unknown[] = obj;
 
   // Navigate to the parent of the target
   for (let i = 0; i < parts.length; i++) {
     const part = parts[i];
+    if (!part) {
+      throw new Error("[Zust] Invalid path segment");
+    }
     const nextPart = parts[i + 1];
 
     if (Array.isArray(current)) {
@@ -163,7 +173,7 @@ export function setNestedValue<T extends Record<string, unknown>>(
       // Create intermediate structure if needed
       if (current[index] === null || current[index] === undefined) {
         // Check if next part is a number (array) or string (object)
-        const nextIndex = nextPart ? parseInt(nextPart, 10) : NaN;
+        const nextIndex = nextPart !== undefined ? parseInt(nextPart, 10) : NaN;
         current[index] = isNaN(nextIndex) ? {} : [];
       }
 
@@ -172,7 +182,7 @@ export function setNestedValue<T extends Record<string, unknown>>(
       // Create intermediate structure if needed
       if (!(part in current) || current[part] === null || current[part] === undefined) {
         // Check if next part is a number (array) or string (object)
-        const nextIndex = nextPart ? parseInt(nextPart, 10) : NaN;
+        const nextIndex = nextPart !== undefined ? parseInt(nextPart, 10) : NaN;
         current[part] = isNaN(nextIndex) ? {} : [];
       }
 
@@ -255,6 +265,7 @@ export function deleteNestedValue<T extends Record<string, unknown>>(
     current.splice(index, 1);
     return true;
   } else if (typeof current === "object" && current !== null) {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
     return delete current[lastPart];
   }
 

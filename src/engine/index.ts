@@ -4,14 +4,13 @@
  */
 
 import { useSyncExternalStore, useCallback, useRef } from "react";
-import { createStoreEngine, batch, type StoreEngine } from "./createStore";
+import { createStoreEngine, batch } from "./createStore";
 import {
   getNestedValue,
   setNestedValue,
   deleteNestedValue,
   hasPath,
   getLastPart,
-  parsePath,
 } from "./pathUtils";
 import { HistoryManager, type HistoryConfig, type HistoryAPI } from "./historyManager";
 import {
@@ -64,9 +63,9 @@ export interface StoreOptions<T extends object> {
 }
 
 /**
- * Enhanced store with all features
+ * Enhanced store methods
  */
-export interface EnhancedStore<T extends object> extends T {
+export interface EnhancedStoreMethods<T extends object> {
   setDeep: <P extends string>(
     path: P,
     action: unknown | ((prev: unknown) => unknown)
@@ -81,6 +80,11 @@ export interface EnhancedStore<T extends object> extends T {
   deleteDeep: (path: string) => boolean;
   hasPath: (path: string) => boolean;
 }
+
+/**
+ * Enhanced store with all features (state + methods)
+ */
+export type EnhancedStore<T extends object> = T & EnhancedStoreMethods<T>;
 
 /**
  * Store creation result
@@ -157,12 +161,9 @@ export function createStore<T extends object>(
   }
 
   const {
-    persist = false,
-    logging = false,
     middleware = [],
     computed = {},
     plugins = [],
-    prefix = "",
     history: historyConfig,
   } = options;
 
@@ -254,7 +255,7 @@ export function createStore<T extends object>(
     } as EnhancedStore<T>;
 
     // Add computed values as getters
-    computedEngine.defineGetters(enhancedStore as Record<string, unknown>);
+    computedEngine.defineGetters(enhancedStore as unknown as Record<string, unknown>);
 
     // Add history API if enabled
     if (historyManager) {
@@ -316,7 +317,7 @@ export function createStore<T extends object>(
         for (const path of selectors) {
           try {
             const [fullPath, alias] = (path as string).split(":") as [string, string | undefined];
-            const key = alias || getLastPart(fullPath);
+            const key = alias ?? getLastPart(fullPath);
             result[key] = getNestedValue(state, fullPath);
           } catch (error) {
             console.error(`[Zust] Error selecting path "${path}":`, error);
@@ -392,7 +393,7 @@ export function createStore<T extends object>(
     } as EnhancedStore<T>;
 
     // Add computed values as getters
-    computedEngine.defineGetters(enhanced as Record<string, unknown>);
+    computedEngine.defineGetters(enhanced as unknown as Record<string, unknown>);
 
     // Add history API if enabled
     if (historyManager) {

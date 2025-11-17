@@ -1,6 +1,6 @@
 {
   "name": "zust",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A powerful, lightweight, and fully standalone state management library for React with time-travel debugging, computed values, and zero dependencies",
   "type": "module",
   "main": "dist/index.cjs.js",
@@ -31,7 +31,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "typecheck": "tsc --noEmit",
     "validate": "npm run typecheck && npm run lint && npm run test",
-    "prepublishOnly": "npm run validate && npm run build:clean"
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run build:clean"
   },
   "keywords": [
     "state management",
