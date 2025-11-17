@@ -1,6 +1,6 @@
 "use client";
 
-import { useSelectors, setDeep, history, fetchPosts } from "@/lib/store";
+import { useSelectors, setDeep, history, fetchPosts, getState } from "@/lib/store";
 import { batch } from "zust";
 import { useEffect } from "react";
 
@@ -52,7 +52,20 @@ export default function Home() {
 }
 
 function BasicStateDemo() {
-  const { name, email, age } = useSelectors("user.name", "user.email", "user.age");
+  const selectedValues = useSelectors("user.name", "user.email", "user.age");
+  const { name, email, age } = selectedValues;
+
+  // Debug logging
+  console.log("=== BasicStateDemo Debug ===");
+  console.log("selectedValues:", selectedValues);
+  console.log("name:", name, "type:", typeof name);
+  console.log("email:", email, "type:", typeof email);
+  console.log("age:", age, "type:", typeof age);
+
+  const state = getState();
+  console.log("Full state:", state);
+  console.log("state.user:", state.user);
+
   return (
     <div className="card">
       <h2>Basic State Management</h2>
@@ -62,19 +75,32 @@ function BasicStateDemo() {
         <input
           type="text"
           value={name || ""}
-          onChange={(e) => setDeep("user.name", e.target.value)}
+          onChange={(e) => {
+            console.log("Setting user.name to:", e.target.value);
+            setDeep("user.name", e.target.value);
+            console.log("After setDeep, state.user:", getState().user);
+          }}
           placeholder="Name"
         />
         <input
           type="email"
           value={email || ""}
-          onChange={(e) => setDeep("user.email", e.target.value)}
+          onChange={(e) => {
+            console.log("Setting user.email to:", e.target.value);
+            setDeep("user.email", e.target.value);
+            console.log("After setDeep, state.user:", getState().user);
+          }}
           placeholder="Email"
         />
         <input
           type="number"
           value={age ?? ""}
-          onChange={(e) => setDeep("user.age", parseInt(e.target.value) || 0)}
+          onChange={(e) => {
+            const newAge = parseInt(e.target.value) || 0;
+            console.log("Setting user.age to:", newAge);
+            setDeep("user.age", newAge);
+            console.log("After setDeep, state.user:", getState().user);
+          }}
           placeholder="Age"
         />
       </div>
@@ -108,7 +134,7 @@ function ArrayPathsDemo() {
             <input
               type="checkbox"
               checked={todo.done}
-              onChange={() => setDeep(`todos.${index}.done`, !todo.done)}
+              onChange={() => setDeep(`todos.${index}.done`, (prev: boolean) => !prev)}
             />
             <span style={{ flex: 1 }}>{todo.text}</span>
           </div>

@@ -52,7 +52,8 @@ export function parsePath(path: string): string[] {
   // Check cache first
   const cached = pathCache.get(path);
   if (cached) {
-    return cached;
+    // Return a copy to prevent mutation of cached array
+    return [...cached];
   }
 
   // Parse and validate
