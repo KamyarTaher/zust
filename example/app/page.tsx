@@ -64,19 +64,19 @@ function BasicStateDemo() {
       <div>
         <input
           type="text"
-          value={name}
+          value={name || ""}
           onChange={(e) => setDeep("user.name", e.target.value)}
           placeholder="Name"
         />
         <input
           type="email"
-          value={email}
+          value={email || ""}
           onChange={(e) => setDeep("user.email", e.target.value)}
           placeholder="Email"
         />
         <input
           type="number"
-          value={age}
+          value={age ?? ""}
           onChange={(e) => setDeep("user.age", parseInt(e.target.value) || 0)}
           placeholder="Age"
         />
