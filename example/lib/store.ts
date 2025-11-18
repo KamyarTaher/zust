@@ -13,7 +13,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-// Define the state type
+// Define the base state type
 export interface AppState {
   // Basic state
   user: {
@@ -51,6 +51,15 @@ export interface AppState {
     price: number;
     quantity: number;
   }>;
+}
+
+// Define the state with computed values
+export interface AppStateWithComputed extends AppState {
+  fullName: string;
+  cartTotal: number;
+  cartItemCount: number;
+  completedTodos: number;
+  activeTodos: number;
 }
 
 // Initial state

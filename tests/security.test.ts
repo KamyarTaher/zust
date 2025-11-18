@@ -15,7 +15,7 @@ describe("Security", () => {
     }).toThrow();
 
     // Verify Object.prototype is not polluted
-    expect((Object.prototype as any).polluted).toBeUndefined();
+    expect(Object.prototype.hasOwnProperty("polluted")).toBe(false);
   });
 
   test("prevents constructor pollution", () => {
@@ -56,25 +56,25 @@ describe("Security", () => {
     const { setDeep } = createStore({ data: {} });
 
     expect(() => {
-      setDeep(null as any, "value");
+      setDeep(null as unknown as string, "value");
     }).toThrow();
 
     expect(() => {
-      setDeep(undefined as any, "value");
+      setDeep(undefined as unknown as string, "value");
     }).toThrow();
   });
 
   test("validates initial state is object", () => {
     expect(() => {
-      createStore(null as any);
+      createStore(null as unknown as object);
     }).toThrow();
 
     expect(() => {
-      createStore([] as any);
+      createStore([] as unknown as object);
     }).toThrow();
 
     expect(() => {
-      createStore("string" as any);
+      createStore("string" as unknown as object);
     }).toThrow();
   });
 

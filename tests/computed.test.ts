@@ -8,6 +8,9 @@ import { createStore as createEngineStore } from "../src/engine";
 
 describe("Computed Values", () => {
   test("computes derived values", () => {
+    type State = { firstName: string; lastName: string };
+    type StateWithComputed = State & { fullName: string };
+
     const { getState } = createEngineStore(
       { firstName: "John", lastName: "Doe" },
       {
@@ -17,11 +20,14 @@ describe("Computed Values", () => {
       }
     );
 
-    const store = getState();
-    expect((store as any).fullName).toBe("John Doe");
+    const store = getState() as StateWithComputed;
+    expect(store.fullName).toBe("John Doe");
   });
 
   test("caches computed values with dependencies", () => {
+    type State = { firstName: string; lastName: string; age: number };
+    type StateWithComputed = State & { fullName: string };
+
     let computeCount = 0;
 
     const { getState, setDeep } = createEngineStore(
@@ -40,12 +46,12 @@ describe("Computed Values", () => {
       }
     );
 
-    const store = getState();
+    const store = getState() as StateWithComputed;
 
     // Access multiple times
-    const name1 = (store as any).fullName;
-    const name2 = (store as any).fullName;
-    const name3 = (store as any).fullName;
+    const name1 = store.fullName;
+    const name2 = store.fullName;
+    const name3 = store.fullName;
 
     // Should only compute once due to caching (or up to 3 times if not cached)
     expect(computeCount).toBeLessThanOrEqual(3);
@@ -54,6 +60,9 @@ describe("Computed Values", () => {
   });
 
   test("recomputes when dependencies change", () => {
+    type State = { firstName: string; lastName: string };
+    type StateWithComputed = State & { fullName: string };
+
     let computeCount = 0;
 
     const { getState, setDeep } = createEngineStore(
@@ -73,15 +82,15 @@ describe("Computed Values", () => {
     );
 
     // Access the computed value
-    const store1 = getState();
-    const name1 = (store1 as any).fullName;
+    const store1 = getState() as StateWithComputed;
+    const name1 = store1.fullName;
     const initialCount = computeCount;
 
     setDeep("firstName", "Jane");
 
     // Access the computed value again
-    const store2 = getState();
-    const name2 = (store2 as any).fullName;
+    const store2 = getState() as StateWithComputed;
+    const name2 = store2.fullName;
 
     // Should recompute after firstName changes
     expect(computeCount).toBeGreaterThan(initialCount);
@@ -119,6 +128,9 @@ describe("Computed Values", () => {
   });
 
   test("handles multiple computed values", () => {
+    type State = { width: number; height: number };
+    type StateWithComputed = State & { area: number; perimeter: number };
+
     const { getState } = createEngineStore(
       { width: 10, height: 20 },
       {
@@ -129,9 +141,9 @@ describe("Computed Values", () => {
       }
     );
 
-    const store = getState();
-    expect((store as any).area).toBe(200);
-    expect((store as any).perimeter).toBe(60);
+    const store = getState() as StateWithComputed;
+    expect(store.area).toBe(200);
+    expect(store.perimeter).toBe(60);
   });
 
   test("computed values are enumerable", () => {

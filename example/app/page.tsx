@@ -1,6 +1,6 @@
 "use client";
 
-import { useSelectors, setDeep, history, fetchPosts } from "@/lib/store";
+import { useSelectors, setDeep, history, fetchPosts, type AppState, type AppStateWithComputed } from "@/lib/store";
 import { batch, createStore } from "zust";
 import { useEffect, useState } from "react";
 
@@ -97,7 +97,7 @@ function BasicStateDemo() {
 
 function ArrayPathsDemo() {
   const { todos } = useSelectors("todos");
-  const todosList = (todos as any[]) || [];
+  const todosList = todos || [];
 
   return (
     <div className="card">
@@ -120,7 +120,7 @@ function ArrayPathsDemo() {
 
       <button
         onClick={() =>
-          setDeep("todos", (prev: any[]) => [
+          setDeep("todos", (prev: AppState["todos"]) => [
             ...(Array.isArray(prev) ? prev : []),
             { id: Date.now(), text: "New Task", done: false },
           ])
@@ -176,12 +176,12 @@ function TimeTravelDemo() {
 }
 
 function ComputedValuesDemo() {
-  const state = useSelectors("fullName", "completedTodos", "activeTodos", "user.name", "user.age");
-  const fullName = (state as any).fullName;
-  const completedTodos = (state as any).completedTodos;
-  const activeTodos = (state as any).activeTodos;
-  const name = (state as any).name;
-  const age = (state as any).age;
+  const state = useSelectors("fullName", "completedTodos", "activeTodos", "user.name", "user.age") as unknown as AppStateWithComputed & { name: string; age: number };
+  const fullName = state.fullName;
+  const completedTodos = state.completedTodos;
+  const activeTodos = state.activeTodos;
+  const name = state.name;
+  const age = state.age;
 
   return (
     <div className="card">
@@ -229,7 +229,7 @@ function ComputedValuesDemo() {
 
 function AsyncDispatchDemo() {
   const { posts, loading, error } = useSelectors("posts", "loading", "error");
-  const postsList = (posts as any[]) || [];
+  const postsList = posts || [];
 
   return (
     <div className="card">
@@ -260,10 +260,10 @@ function AsyncDispatchDemo() {
 }
 
 function ShoppingCartDemo() {
-  const state = useSelectors("cart", "cartTotal", "cartItemCount");
-  const cart = (state.cart as any[]) || [];
-  const cartTotal = (state as any).cartTotal || 0;
-  const cartItemCount = (state as any).cartItemCount || 0;
+  const state = useSelectors("cart", "cartTotal", "cartItemCount") as unknown as AppStateWithComputed;
+  const cart = state.cart || [];
+  const cartTotal = state.cartTotal || 0;
+  const cartItemCount = state.cartItemCount || 0;
 
   const updateQuantity = (index: number, delta: number) => {
     batch(() => {

@@ -176,41 +176,6 @@ describe("Persistence", () => {
     expect(localStorage.getItem("test-cleanup-count")).toBeNull();
   });
 
-  // Note: Skipping this test because mocking localStorage.setItem after store creation
-  // doesn't work - the persister captures the storage reference at creation time.
-  // Error handling is tested in the "handles load errors gracefully" test instead.
-  test.skip("handles localStorage errors gracefully", async () => {
-    const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-
-    const { setDeep, destroy } = createStore(
-      { count: 0 },
-      { persist: true, prefix: "test-error" }
-    );
-
-    // Mock setItem to throw AFTER store is created
-    const originalSetItem = localStorage.setItem;
-    let setItemCalled = false;
-    localStorage.setItem = (() => {
-      setItemCalled = true;
-      throw new Error("QuotaExceededError");
-    }) as any;
-
-    setDeep("count", 42);
-
-    await waitFor(200);
-
-    // Verify setItem was actually called
-    expect(setItemCalled).toBe(true);
-
-    // Should have caught and logged the error (either from persister or engine)
-    expect(consoleErrorSpy).toHaveBeenCalled();
-
-    // Restore
-    localStorage.setItem = originalSetItem;
-    consoleErrorSpy.mockRestore();
-    destroy();
-  });
-
   test("handles load errors gracefully", async () => {
     const consoleErrorSpy = jest.spyOn(console, "error").mockImplementation(() => {});
 
