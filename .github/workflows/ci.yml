@@ -12,7 +12,10 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Self-hosted (owner ruling 2026-11-21: no CI/CD on GitHub-hosted runners). This repository is public, so a
+    # pull request from a fork must never reach the runner: only pushes and same-repository PRs run.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, alpha]
     timeout-minutes: 15
 
     strategy:

@@ -1,0 +1,4 @@
+# Labels of the self-hosted runners this repository's jobs select (owner ruling 2026-11-21: no GitHub-hosted runners).
+self-hosted-runner:
+  labels:
+    - alpha
